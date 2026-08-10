@@ -13,6 +13,20 @@
   .deals-detail ul{ list-style:none; padding:0; }
   .deals-detail li{ padding:10px 0; border-bottom:1px solid var(--line); color:var(--bone-dim); font-size:14.5px; }
   .deals-detail li:last-child{ border-bottom:none; }
+  .deal-graphic{ max-width:100%; border-radius:6px; margin-bottom:14px; display:block; }
+  .today-banner{
+    background: linear-gradient(120deg, var(--yellow) 0%, var(--yellow-deep) 100%);
+    color:var(--ink); border-radius:6px; padding:32px; margin-bottom:40px;
+  }
+  .today-banner .tag{
+    font-family:'JetBrains Mono',monospace; font-weight:700; font-size:11px; letter-spacing:0.14em;
+    background:var(--ink); color:var(--yellow); padding:8px 14px; border-radius:20px; display:inline-block; margin-bottom:14px;
+  }
+  .today-banner h2{ font-family:'Bungee',sans-serif; font-size:1.4rem; text-transform:uppercase; margin-bottom:14px; color:var(--ink); }
+  .today-banner ul{ list-style:none; padding:0; }
+  .today-banner li{ padding:8px 0; font-size:14.5px; border-bottom:1px solid rgba(10,10,10,0.15); }
+  .today-banner li:last-child{ border-bottom:none; }
+  .today-banner img{ max-width:100%; border-radius:6px; margin-bottom:14px; display:block; }
 </style>
 </head>
 <body>
@@ -24,8 +38,12 @@
       <p>There's a deal every day of the week. Stop by and save on your favorite brands.</p>
     </section>
 
-    <div class="deals-detail" id="dealsContainer">
-      <div class="empty-state">Loading deals…</div>
+    <div class="deals-detail">
+      <div id="todayContainer"></div>
+      <div class="block-eyebrow" style="padding:0;">All Week's Deals</div>
+      <div id="dealsContainer">
+        <div class="empty-state">Loading deals…</div>
+      </div>
     </div>
 
   </div>
@@ -39,14 +57,35 @@
 
   async function renderDeals() {
     const container = document.getElementById('dealsContainer');
+    const todayContainer = document.getElementById('todayContainer');
     const deals = await fetchDeals();
     if (!deals.length) {
       container.innerHTML = '<div class="empty-state">No deals posted right now — check back soon.</div>';
       return;
     }
+
+    // Highlight whichever deal(s) match today's day of the week
+    const todayName = new Date().toLocaleDateString('en-US', { weekday: 'long' });
+    const todaysDeals = deals.filter(d => d.day_label.includes(todayName));
+
+    if (todaysDeals.length) {
+      todayContainer.innerHTML = todaysDeals.map(deal => {
+        const items = deal.items.split('|').map(item => `<li>${item.trim()}</li>`).join('');
+        const img = deal.image_url ? `<img src="${deal.image_url}" alt="${deal.day_label} deal">` : '';
+        return `
+          <div class="today-banner">
+            <div class="tag mono">★ TODAY'S DEAL</div>
+            <h2>${deal.day_label}</h2>
+            ${img}
+            <ul>${items}</ul>
+          </div>`;
+      }).join('');
+    }
+
     container.innerHTML = deals.map(deal => {
       const items = deal.items.split('|').map(item => `<li>${item.trim()}</li>`).join('');
-      return `<h2>${deal.day_label}</h2><ul>${items}</ul>`;
+      const img = deal.image_url ? `<img class="deal-graphic" src="${deal.image_url}" alt="${deal.day_label} deal">` : '';
+      return `<h2>${deal.day_label}</h2>${img}<ul>${items}</ul>`;
     }).join('');
   }
   renderDeals();

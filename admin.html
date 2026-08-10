@@ -77,6 +77,7 @@
       <div class="form-panel">
         <h3 id="dealsFormTitle">Add A Deal</h3>
         <input type="hidden" id="dealId">
+        <input type="hidden" id="dealImageUrl">
         <div class="form-row">
           <label>Day / Label</label>
           <input type="text" id="dealDayLabel" placeholder="e.g. Monday, or Tuesday & Wednesday">
@@ -85,6 +86,12 @@
           <label>Deal Items</label>
           <textarea id="dealItems" rows="4" placeholder="One deal per line"></textarea>
           <div class="hint">Each line becomes one bullet point. Example: 40% OFF Cake</div>
+        </div>
+        <div class="form-row">
+          <label>Graphic (optional)</label>
+          <input type="file" id="dealImageFile" accept="image/*">
+          <div class="hint" id="dealImageHint">No image uploaded yet.</div>
+          <img id="dealImagePreview" src="" alt="" style="display:none; max-width:180px; margin-top:10px; border-radius:4px; border:1px solid var(--line);">
         </div>
         <div class="form-row">
           <label>Order (lower shows first)</label>
@@ -249,7 +256,8 @@
     list.innerHTML = deals.map(d => `
       <div class="admin-card">
         <div class="admin-card-head">
-          <div>
+          ${d.image_url ? `<img src="${d.image_url}" alt="" style="width:56px; height:56px; object-fit:cover; border-radius:4px; flex-shrink:0;">` : ''}
+          <div style="flex:1;">
             <h3>${d.day_label} ${d.active ? '' : '<span style="color:var(--bone-dim); font-weight:400;">(hidden)</span>'}</h3>
             <div class="meta">${d.items.split('|').length} items · order ${d.sort_order}</div>
           </div>
@@ -267,6 +275,15 @@
     document.getElementById('dealItems').value = d.items.split('|').map(s => s.trim()).join('\n');
     document.getElementById('dealSortOrder').value = d.sort_order;
     document.getElementById('dealActive').checked = d.active;
+    document.getElementById('dealImageUrl').value = d.image_url || '';
+    if (d.image_url) {
+      document.getElementById('dealImagePreview').src = d.image_url;
+      document.getElementById('dealImagePreview').style.display = 'block';
+      document.getElementById('dealImageHint').textContent = 'Current image shown below. Upload a new file to replace it.';
+    } else {
+      document.getElementById('dealImagePreview').style.display = 'none';
+      document.getElementById('dealImageHint').textContent = 'No image uploaded yet.';
+    }
     document.getElementById('dealsFormTitle').textContent = 'Edit Deal';
     window.scrollTo(0, 0);
   }
@@ -277,25 +294,44 @@
     document.getElementById('dealItems').value = '';
     document.getElementById('dealSortOrder').value = 1;
     document.getElementById('dealActive').checked = true;
+    document.getElementById('dealImageUrl').value = '';
+    document.getElementById('dealImageFile').value = '';
+    document.getElementById('dealImagePreview').style.display = 'none';
+    document.getElementById('dealImageHint').textContent = 'No image uploaded yet.';
     document.getElementById('dealsFormTitle').textContent = 'Add A Deal';
     document.getElementById('dealStatus').textContent = '';
   }
 
   async function saveDeal() {
     const id = document.getElementById('dealId').value;
+    const status = document.getElementById('dealStatus');
+
+    let imageUrl = document.getElementById('dealImageUrl').value;
+    const file = document.getElementById('dealImageFile').files[0];
+    if (file) {
+      status.textContent = 'Uploading image…';
+      const result = await uploadImage(file, 'deal-images');
+      if (result.error) {
+        status.textContent = 'Image upload failed: ' + result.error.message;
+        return;
+      }
+      imageUrl = result.publicUrl;
+    }
+
     const row = {
       day_label: document.getElementById('dealDayLabel').value.trim(),
       items: document.getElementById('dealItems').value.split('\n').map(s => s.trim()).filter(Boolean).join('|'),
       sort_order: parseInt(document.getElementById('dealSortOrder').value) || 1,
       active: document.getElementById('dealActive').checked,
+      image_url: imageUrl || null,
     };
     if (id) row.id = id;
     if (!row.day_label || !row.items) {
-      document.getElementById('dealStatus').textContent = 'Day label and at least one item are required.';
+      status.textContent = 'Day label and at least one item are required.';
       return;
     }
     const { error } = await adminUpsert('deals', row);
-    document.getElementById('dealStatus').textContent = error ? 'Error: ' + error.message : 'Saved ✓';
+    status.textContent = error ? 'Error: ' + error.message : 'Saved ✓';
     if (!error) { resetDealForm(); loadDealsList(); }
   }
 
@@ -453,6 +489,15 @@
   resetEventForm();
   resetBlogForm();
   checkAuth();
+
+  document.getElementById('dealImageFile').addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const preview = document.getElementById('dealImagePreview');
+    preview.src = URL.createObjectURL(file);
+    preview.style.display = 'block';
+    document.getElementById('dealImageHint').textContent = 'New file selected — will upload when you click Save Deal.';
+  });
 </script>
 </body>
 </html>

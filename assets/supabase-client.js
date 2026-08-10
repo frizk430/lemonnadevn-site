@@ -69,3 +69,16 @@ async function adminFetchAll(table, orderCol) {
   if (error) { console.error(`adminFetchAll(${table}) error:`, error); return []; }
   return data;
 }
+
+// ---------- IMAGE UPLOAD ----------
+async function uploadImage(file, bucket) {
+  const fileExt = file.name.split('.').pop();
+  const fileName = `${Date.now()}-${Math.random().toString(36).slice(2)}.${fileExt}`;
+  const { error: uploadError } = await supabaseClient.storage
+    .from(bucket)
+    .upload(fileName, file);
+  if (uploadError) return { error: uploadError };
+
+  const { data } = supabaseClient.storage.from(bucket).getPublicUrl(fileName);
+  return { publicUrl: data.publicUrl };
+}
