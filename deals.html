@@ -24,9 +24,16 @@
   }
   .today-banner h2{ font-family:'Bungee',sans-serif; font-size:1.4rem; text-transform:uppercase; margin-bottom:14px; color:var(--ink); }
   .today-banner ul{ list-style:none; padding:0; }
-  .today-banner li{ padding:8px 0; font-size:14.5px; border-bottom:1px solid rgba(10,10,10,0.15); }
+  .today-banner li{ padding:8px 0; font-size:14.5px; border-bottom:1px solid rgba(10,10,10,0.15); color:var(--ink); }
   .today-banner li:last-child{ border-bottom:none; }
   .today-banner img{ max-width:100%; border-radius:6px; margin-bottom:14px; display:block; }
+  .everyday-section{ margin-bottom:36px; padding-bottom:28px; border-bottom:1px solid var(--line); }
+  .everyday-card{ background:var(--surface); border:1px solid var(--yellow); border-radius:6px; padding:24px; margin-bottom:12px; }
+  .everyday-card .tag{ font-family:'JetBrains Mono',monospace; font-weight:700; font-size:10px; letter-spacing:0.12em; color:var(--yellow); margin-bottom:10px; display:block; }
+  .everyday-card img{ max-width:100%; border-radius:6px; margin-bottom:12px; display:block; }
+  .everyday-card ul{ list-style:none; padding:0; }
+  .everyday-card li{ padding:8px 0; border-bottom:1px solid var(--line); color:var(--bone-dim); font-size:14.5px; }
+  .everyday-card li:last-child{ border-bottom:none; }
 </style>
 </head>
 <body>
@@ -40,6 +47,7 @@
 
     <div class="deals-detail">
       <div id="todayContainer"></div>
+      <div id="everydayContainer"></div>
       <div class="block-eyebrow" style="padding:0;">All Week's Deals</div>
       <div id="dealsContainer">
         <div class="empty-state">Loading deals…</div>
@@ -58,15 +66,20 @@
   async function renderDeals() {
     const container = document.getElementById('dealsContainer');
     const todayContainer = document.getElementById('todayContainer');
+    const everydayContainer = document.getElementById('everydayContainer');
     const deals = await fetchDeals();
     if (!deals.length) {
       container.innerHTML = '<div class="empty-state">No deals posted right now — check back soon.</div>';
       return;
     }
 
-    // Highlight whichever deal(s) match today's day of the week
+    // Split out "Everyday" deals from day-specific ones
+    const everydayDeals = deals.filter(d => d.day_label.toLowerCase().includes('everyday'));
+    const weeklyDeals = deals.filter(d => !d.day_label.toLowerCase().includes('everyday'));
+
+    // Highlight whichever day-specific deal matches today's day of the week
     const todayName = new Date().toLocaleDateString('en-US', { weekday: 'long' });
-    const todaysDeals = deals.filter(d => d.day_label.includes(todayName));
+    const todaysDeals = weeklyDeals.filter(d => d.day_label.includes(todayName));
 
     if (todaysDeals.length) {
       todayContainer.innerHTML = todaysDeals.map(deal => {
@@ -82,7 +95,24 @@
       }).join('');
     }
 
-    container.innerHTML = deals.map(deal => {
+    if (everydayDeals.length) {
+      everydayContainer.innerHTML = `
+        <div class="everyday-section">
+          <div class="block-eyebrow" style="padding:0;">Every Single Day</div>
+          ${everydayDeals.map(deal => {
+            const items = deal.items.split('|').map(item => `<li>${item.trim()}</li>`).join('');
+            const img = deal.image_url ? `<img src="${deal.image_url}" alt="${deal.day_label} deal">` : '';
+            return `
+              <div class="everyday-card">
+                <span class="tag">ALWAYS ON</span>
+                ${img}
+                <ul>${items}</ul>
+              </div>`;
+          }).join('')}
+        </div>`;
+    }
+
+    container.innerHTML = weeklyDeals.map(deal => {
       const items = deal.items.split('|').map(item => `<li>${item.trim()}</li>`).join('');
       const img = deal.image_url ? `<img class="deal-graphic" src="${deal.image_url}" alt="${deal.day_label} deal">` : '';
       return `<h2>${deal.day_label}</h2>${img}<ul>${items}</ul>`;
