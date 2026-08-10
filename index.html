@@ -14,10 +14,10 @@
       <div>
         <div class="hero-eyebrow">Van Nuys' House of Fire</div>
         <h1 class="display">Fresh cut.<br>Fresh <em>cuts.</em></h1>
-        <p>Van Nuys' dispensary, hip-hop museum, and working recording studio — all under one roof. Curated top-shelf drops, honest pricing, and a menu that changes weekly.</p>
+        <p>Van Nuys' dispensary for people who know their flower. Curated top-shelf drops, honest pricing, and a menu that changes weekly — with a hip-hop museum and working recording studio on site.</p>
         <div class="hero-actions">
           <a href="menu.html" class="btn btn-yellow" style="text-decoration:none; display:inline-block;">Shop Full Menu</a>
-          <a href="studio.html" class="btn btn-outline" style="text-decoration:none; display:inline-block;">Tour the Studio</a>
+          <a href="deals.html" class="btn btn-outline" style="text-decoration:none; display:inline-block;">This Week's Deals</a>
         </div>
       </div>
       <div class="hero-visual">
@@ -49,36 +49,15 @@
 
     <section class="block">
       <div class="block-head">
-        <div><div class="block-eyebrow">Save This Week</div><h2 class="block-title display">Weekly Deals</h2></div>
+        <div><div class="block-eyebrow">Save This Week</div><h2 class="block-title display" id="dealsDayHeading">Weekly Deals</h2></div>
         <a href="deals.html" class="block-link">See all deals →</a>
       </div>
-      <div class="deal-card">
+      <div class="deal-card" id="homeDealCard">
         <div class="deal-img"><div class="deal-badge">DEALS<br>EVERY DAY</div></div>
         <div class="deal-body">
           <h3>This Week's Drop</h3>
           <p>Rotating flower, vape, and edible deals — refreshed every week. Check the full breakdown for exact days and brands.</p>
           <a href="deals.html" class="btn btn-yellow" style="width:fit-content; text-decoration:none; display:inline-block;">See Deals</a>
-        </div>
-      </div>
-    </section>
-
-    <section class="block studio-block" id="studio">
-      <div class="block-head">
-        <div><div class="block-eyebrow">Not Just A Dispensary</div><h2 class="block-title display">Weed Working — Museum &amp; Studio</h2></div>
-        <a href="studio.html" class="block-link">Learn more →</a>
-      </div>
-      <div class="studio-grid">
-        <div class="studio-panel">
-          <div class="stamp"><span>HIP HOP<br>MUSEUM</span></div>
-          <h3>The Museum</h3>
-          <p>Rare memorabilia, vinyl, and hip-hop history on permanent display in-store — a piece of the culture you can walk through while you shop.</p>
-          <div class="tags"><span>Free with visit</span><span>Rotating exhibits</span></div>
-        </div>
-        <div class="studio-panel">
-          <div class="stamp"><span>WEED<br>WORKING</span></div>
-          <h3>The Studio</h3>
-          <p>A full working recording studio on-site — Weed Working Hip Hop Studio. Local artists record, write, and create right above the shop floor.</p>
-          <div class="tags"><span>Book studio time</span><span>Local artists welcome</span></div>
         </div>
       </div>
     </section>
@@ -116,6 +95,16 @@
       </div>
     </section>
 
+    <section class="block studio-block" id="studio">
+      <div class="block-head" style="margin-bottom:0;">
+        <div>
+          <h3 style="font-family:'Bungee',sans-serif; font-size:1.1rem; text-transform:uppercase;">Also home to the Weed Working Hip-Hop Museum &amp; Studio</h3>
+          <p style="color:var(--bone-dim); font-size:14px; margin-top:6px; max-width:520px;">Rare memorabilia and a full working recording studio, right above the shop floor.</p>
+        </div>
+        <a href="studio.html" class="block-link">Learn more →</a>
+      </div>
+    </section>
+
     <section class="block">
       <div class="block-head">
         <div><div class="block-eyebrow">From The Blog</div><h2 class="block-title display">Latest Reads</h2></div>
@@ -139,9 +128,44 @@
 
   </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="assets/supabase-config.js"></script>
+<script src="assets/supabase-client.js"></script>
 <script src="assets/components.js"></script>
 <script>
   mountLemonnadeSite({ activeHref: 'index.html', logoSrc: 'assets/logo.png' });
+
+  async function renderHomeDeal() {
+    const deals = await fetchDeals();
+    if (!deals.length) return; // leave the default placeholder card as-is
+
+    const todayName = new Date().toLocaleDateString('en-US', { weekday: 'long' });
+    const everydayDeal = deals.find(d => d.day_label.toLowerCase().includes('everyday'));
+    const todaysDeal = deals.find(d => d.day_label.includes(todayName) && !d.day_label.toLowerCase().includes('everyday'));
+
+    // Prefer today's specific deal; fall back to an Everyday deal if that's all there is
+    const featured = todaysDeal || everydayDeal;
+    if (!featured) return;
+
+    const items = featured.items.split('|').map(i => i.trim());
+    const previewItems = items.slice(0, 2).join(' · ') + (items.length > 2 ? ' + more' : '');
+
+    document.getElementById('dealsDayHeading').textContent = todaysDeal ? `Today: ${featured.day_label}` : 'Weekly Deals';
+
+    const card = document.getElementById('homeDealCard');
+    const imgHtml = featured.image_url
+      ? `<img src="${featured.image_url}" alt="${featured.day_label} deal" style="width:100%; height:100%; object-fit:cover;">`
+      : `<div class="deal-badge">${todaysDeal ? "TODAY'S<br>DEAL" : 'DEALS<br>EVERY DAY'}</div>`;
+
+    card.innerHTML = `
+      <div class="deal-img">${imgHtml}</div>
+      <div class="deal-body">
+        <h3>${featured.day_label}</h3>
+        <p>${previewItems}</p>
+        <a href="deals.html" class="btn btn-yellow" style="width:fit-content; text-decoration:none; display:inline-block;">See Full Deal</a>
+      </div>`;
+  }
+  renderHomeDeal();
 </script>
 </body>
 </html>
