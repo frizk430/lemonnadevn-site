@@ -5,5 +5,5 @@
 // The anon key is SAFE to be here / in a public repo — it's meant to be public.
 // NEVER put your service_role key in this file.
 
-const SUPABASE_URL = "https://vglflsblvtagahaxhhyg.supabase.co";
-const SUPABASE_ANON_KEY = "sb_publishable_9ZURH01sd_mq_pKSviIdHg_aStlJ5J_";
+const SUPABASE_URL = "https://ccczquselvfnomyatdat.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_uMlPLAmhfGmVFiHniYqdPQ_vtAwKoVI";
