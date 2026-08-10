@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shop Menu — Lemonnade Van Nuys</title>
+<meta name="description" content="Shop the full Lemonnade Van Nuys menu — flower, pre-rolls, vapes, edibles, concentrates, topicals, and more.">
+<link rel="stylesheet" href="assets/style.css">
+<style>
+  /* Menu page fix: a sticky header can fight with the Meadow embed's own
+     scroll/re-render behavior during checkout, causing the page to jump.
+     Non-sticky here removes that conflict. */
+  header{ position: static !important; }
+</style>
+</head>
+<body>
+  <div id="site">
+
+    <section class="page-hero">
+      <div class="hero-eyebrow">Order Online</div>
+      <h1 class="display">Shop The Menu</h1>
+      <p>Real-time inventory, straight from our shelves. In-store pickup available now.</p>
+    </section>
+
+    <div class="menu-embed-wrap">
+      <!-- Meadow embeddable menu -->
+      <script src="https://embed.getmeadow.com/assets/embed.js" data-organization-id="1350"></script>
+      <noscript>
+        <div class="menu-fallback">Enable JavaScript to view our live menu, or call the shop directly.</div>
+      </noscript>
+    </div>
+
+  </div>
+
+<script src="assets/components.js"></script>
+<script>
+  mountLemonnadeSite({ activeHref: 'menu.html', logoSrc: 'assets/logo.png' });
+</script>
+</body>
+</html>

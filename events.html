@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Events — Lemonnade Van Nuys</title>
+<meta name="description" content="Upcoming events at Lemonnade Van Nuys — museum showcases, studio sessions, and in-store tastings.">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+  <div id="site">
+
+    <section class="page-hero">
+      <div class="hero-eyebrow">Mark Your Calendar</div>
+      <h1 class="display">Events</h1>
+      <p>Museum showcases, studio sessions, and in-store tastings — updated as they're booked.</p>
+    </section>
+
+    <!-- EVENTS-DATA: now pulled live from Supabase -->
+    <section class="block" style="border-top:none; padding-top:0;">
+      <div id="eventsContainer">
+        <div class="empty-state">Loading events…</div>
+      </div>
+    </section>
+
+  </div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="assets/supabase-config.js"></script>
+<script src="assets/supabase-client.js"></script>
+<script src="assets/components.js"></script>
+<script>
+  mountLemonnadeSite({ activeHref: 'events.html', logoSrc: 'assets/logo.png' });
+
+  function formatDateChip(dateStr) {
+    const d = new Date(dateStr + 'T00:00:00');
+    const month = d.toLocaleString('en-US', { month: 'short' }).toUpperCase();
+    return `${month}<br>${String(d.getDate()).padStart(2,'0')}`;
+  }
+
+  async function renderEvents() {
+    const container = document.getElementById('eventsContainer');
+    const events = await fetchEvents();
+    if (!events.length) {
+      container.innerHTML = '<div class="empty-state">No events posted right now — check back soon.</div>';
+      return;
+    }
+    const blast = events.find(e => e.is_blast);
+    const upcoming = events.filter(e => !e.is_blast).slice(0, 3);
+
+    let html = '';
+    if (blast) {
+      html += `
+        <div class="blast-banner">
+          <div class="blast-tag mono">★ BLAST</div>
+          <div>
+            <h3>${blast.title}</h3>
+            <p>${new Date(blast.event_date + 'T00:00:00').toLocaleDateString('en-US', { weekday:'short', month:'short', day:'numeric' })} · ${blast.event_time || ''} · ${blast.location}${blast.description ? ' — ' + blast.description : ''}</p>
+          </div>
+          <button class="btn">RSVP Now</button>
+        </div>`;
+    }
+
+    html += `<div class="cal-list" style="margin-top:24px; background:var(--surface); border:1px solid var(--line); border-radius:6px; padding:28px;">
+      <h4 style="font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:0.14em; color:var(--yellow); text-transform:uppercase; margin-bottom:18px;">All Upcoming Events</h4>
+      ${events.map(ev => `
+        <div class="cal-item ${ev.is_blast ? 'is-blast' : ''}">
+          <div class="date-chip">${formatDateChip(ev.event_date)}</div>
+          <div><div class="ev-name">${ev.title}${ev.is_blast ? ' — Blast' : ''}</div><div class="ev-time">${ev.event_time || ''}${ev.location ? ' · ' + ev.location : ''}</div></div>
+        </div>`).join('')}
+    </div>`;
+
+    container.innerHTML = html;
+  }
+  renderEvents();
+</script>
+</body>
+</html>

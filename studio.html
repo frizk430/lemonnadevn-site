@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Museum & Studio — Lemonnade Van Nuys</title>
+<meta name="description" content="Lemonnade Van Nuys is home to a Hip-Hop Museum and the Weed Working Hip Hop Studio — book studio time or visit the exhibit.">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+  <div id="site">
+
+    <section class="page-hero">
+      <div class="hero-eyebrow">Not Just A Dispensary</div>
+      <h1 class="display">Weed Working — Museum &amp; Studio</h1>
+      <p>A piece of hip-hop history and a full working recording studio, right above the shop floor.</p>
+    </section>
+
+    <div class="studio-hero-panel">
+      <div class="studio-panel">
+        <div class="stamp" style="border-color:var(--yellow); margin-bottom:24px;"><span style="color:var(--yellow);">HIP HOP<br>MUSEUM</span></div>
+        <h3 style="font-family:'Bungee',sans-serif; font-size:1.5rem; text-transform:uppercase; margin-bottom:14px;">The Museum</h3>
+        <p style="color:var(--bone-dim); line-height:1.75; font-size:14.5px; margin-bottom:20px;">Rare memorabilia, vinyl, and hip-hop history on permanent display — a piece of the culture you can walk through while you shop. Exhibits rotate throughout the year, so there's always something new to see.</p>
+        <div class="tags" style="display:flex; gap:8px; flex-wrap:wrap;">
+          <span style="font-family:'JetBrains Mono',monospace; font-size:11px; border:1px solid var(--line); padding:6px 10px; border-radius:20px; color:var(--bone-dim);">Free with visit</span>
+          <span style="font-family:'JetBrains Mono',monospace; font-size:11px; border:1px solid var(--line); padding:6px 10px; border-radius:20px; color:var(--bone-dim);">Rotating exhibits</span>
+        </div>
+      </div>
+      <div class="studio-panel">
+        <div class="stamp" style="border-color:var(--yellow); margin-bottom:24px;"><span style="color:var(--yellow);">WEED<br>WORKING</span></div>
+        <h3 style="font-family:'Bungee',sans-serif; font-size:1.5rem; text-transform:uppercase; margin-bottom:14px;">The Studio</h3>
+        <p style="color:var(--bone-dim); line-height:1.75; font-size:14.5px; margin-bottom:20px;">A full working recording studio on-site — Weed Working Hip Hop Studio. Local artists record, write, and create right above the shop floor. Fill out the form below to inquire about booking time.</p>
+        <div class="tags" style="display:flex; gap:8px; flex-wrap:wrap;">
+          <span style="font-family:'JetBrains Mono',monospace; font-size:11px; border:1px solid var(--line); padding:6px 10px; border-radius:20px; color:var(--bone-dim);">Book studio time</span>
+          <span style="font-family:'JetBrains Mono',monospace; font-size:11px; border:1px solid var(--line); padding:6px 10px; border-radius:20px; color:var(--bone-dim);">Local artists welcome</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="block-head" style="padding:0 clamp(20px,5vw,64px); margin-bottom:24px;">
+      <div><div class="block-eyebrow">Book Studio Time</div><h2 class="block-title display">Request A Session</h2></div>
+    </div>
+    <form class="booking-form" onsubmit="return handleBookingSubmit(event)">
+      <label for="name">Name</label>
+      <input type="text" id="name" required>
+      <label for="email">Email or Phone</label>
+      <input type="text" id="email" required>
+      <label for="date">Preferred Date</label>
+      <input type="date" id="date">
+      <label for="notes">What are you working on?</label>
+      <textarea id="notes" rows="4"></textarea>
+      <button type="submit" class="btn btn-yellow" style="margin-top:24px; width:100%;">Send Request</button>
+      <p style="font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--bone-dim); margin-top:14px;" id="bookingStatus"></p>
+    </form>
+
+  </div>
+
+<script src="assets/components.js"></script>
+<script>
+  mountLemonnadeSite({ activeHref: 'studio.html', logoSrc: 'assets/logo.png' });
+
+  // Placeholder handler — Phase 2 wires this to actually send the request (email or Supabase table).
+  function handleBookingSubmit(e) {
+    e.preventDefault();
+    document.getElementById('bookingStatus').textContent =
+      "This form isn't connected yet — for now, please call or DM the shop directly to book studio time.";
+    return false;
+  }
+</script>
+</body>
+</html>

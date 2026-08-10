@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>About & Contact — Lemonnade Van Nuys</title>
+<meta name="description" content="Visit Lemonnade Van Nuys — 7040 Hayvenhurst Ave, Van Nuys, CA. Open daily 8AM–9:50PM.">
+<link rel="stylesheet" href="assets/style.css">
+<style>
+  .about-body{ padding:20px clamp(20px,5vw,64px) 80px; max-width:700px; }
+  .about-body p{ color:var(--bone-dim); line-height:1.8; margin-bottom:20px; }
+  .contact-grid{ display:grid; grid-template-columns:1fr 1fr; gap:24px; margin-top:40px; }
+  .contact-card{ background:var(--surface); border:1px solid var(--line); border-radius:6px; padding:26px; }
+  .contact-card .label{ font-family:'JetBrains Mono',monospace; font-size:10.5px; color:var(--bone-dim); letter-spacing:0.14em; text-transform:uppercase; margin-bottom:8px; }
+  .contact-card .value{ font-size:16px; font-weight:600; }
+  @media (max-width:600px){ .contact-grid{ grid-template-columns:1fr; } }
+</style>
+</head>
+<body>
+  <div id="site">
+
+    <section class="page-hero">
+      <div class="hero-eyebrow">Come Say Hi</div>
+      <h1 class="display">About &amp; Contact</h1>
+      <p>Van Nuys' dispensary, hip-hop museum, and recording studio — all in one spot.</p>
+    </section>
+
+    <div class="about-body">
+      <p>Lemonnade Van Nuys isn't just a dispensary — it's a full experience. Along with a curated, top-shelf menu that rotates weekly, we house a hip-hop museum with rare memorabilia and vinyl, plus a fully working recording studio where local artists come to write and record.</p>
+      <p>We serve both recreational and medical customers, 21+ with valid ID — no medical card required.</p>
+
+      <div class="contact-grid">
+        <div class="contact-card"><div class="label">Address</div><div class="value">7040 Hayvenhurst Ave<br>Van Nuys, CA</div></div>
+        <div class="contact-card"><div class="label">Hours</div><div class="value">Open Daily<br>8AM – 9:50PM</div></div>
+      </div>
+    </div>
+
+  </div>
+
+<script src="assets/components.js"></script>
+<script>
+  mountLemonnadeSite({ activeHref: 'about.html', logoSrc: 'assets/logo.png' });
+</script>
+</body>
+</html>

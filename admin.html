@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — Lemonnade Van Nuys</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="stylesheet" href="assets/style.css">
+<style>
+  body{ background:var(--ink); }
+  .admin-shell{ display:none; max-width:1000px; margin:0 auto; padding:40px 20px 100px; }
+  .admin-shell.visible{ display:block; }
+  .admin-header{ display:flex; justify-content:space-between; align-items:center; margin-bottom:32px; padding-bottom:20px; border-bottom:1px solid var(--line); }
+  .admin-header h1{ font-family:'Bungee',sans-serif; font-size:1.5rem; text-transform:uppercase; }
+  .tabs{ display:flex; gap:8px; margin-bottom:28px; }
+  .tab-btn{ font-family:'JetBrains Mono',monospace; font-size:12.5px; padding:10px 18px; border-radius:20px; border:1px solid var(--line); background:none; color:var(--bone-dim); cursor:pointer; }
+  .tab-btn.active{ background:var(--yellow); color:var(--ink); border-color:var(--yellow); font-weight:600; }
+  .tab-panel{ display:none; }
+  .tab-panel.active{ display:block; }
+  .admin-card{ background:var(--surface); border:1px solid var(--line); border-radius:6px; padding:22px; margin-bottom:14px; }
+  .admin-card-head{ display:flex; justify-content:space-between; align-items:flex-start; gap:16px; }
+  .admin-card h3{ font-family:'Bungee',sans-serif; font-size:1rem; text-transform:uppercase; margin-bottom:6px; }
+  .admin-card .meta{ font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--bone-dim); }
+  .admin-card .actions{ display:flex; gap:8px; flex-shrink:0; }
+  .icon-btn{ background:none; border:1px solid var(--line); color:var(--bone-dim); padding:6px 12px; border-radius:4px; font-family:'JetBrains Mono',monospace; font-size:11px; cursor:pointer; }
+  .icon-btn:hover{ border-color:var(--yellow); color:var(--yellow); }
+  .icon-btn.danger:hover{ border-color:#c0392b; color:#e74c3c; }
+
+  .form-panel{ background:var(--surface); border:1px solid var(--line); border-radius:6px; padding:28px; margin-bottom:28px; }
+  .form-panel h3{ font-family:'Bungee',sans-serif; font-size:1rem; text-transform:uppercase; margin-bottom:20px; }
+  .form-row{ margin-bottom:16px; }
+  .form-row label{ display:block; font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--bone-dim); letter-spacing:0.08em; text-transform:uppercase; margin-bottom:6px; }
+  .form-row input, .form-row textarea, .form-row select{ width:100%; background:var(--ink); border:1px solid var(--line); border-radius:4px; padding:10px 12px; color:var(--bone); font-family:'Space Grotesk',sans-serif; font-size:14px; }
+  .form-row input:focus, .form-row textarea:focus, .form-row select:focus{ outline:none; border-color:var(--yellow); }
+  .form-row .hint{ font-size:11px; color:var(--bone-dim); margin-top:4px; }
+  .checkbox-row{ display:flex; align-items:center; gap:8px; }
+  .checkbox-row input{ width:auto; }
+  .form-actions{ display:flex; gap:10px; margin-top:20px; }
+
+  .login-shell{ min-height:100vh; display:flex; align-items:center; justify-content:center; padding:20px; }
+  .login-card{ max-width:380px; width:100%; text-align:center; }
+  .login-card img{ width:120px; margin:0 auto 24px; }
+  .login-card input{ width:100%; background:var(--surface); border:1px solid var(--line); border-radius:4px; padding:12px 14px; color:var(--bone); margin-bottom:12px; font-family:'Space Grotesk',sans-serif; }
+  .login-error{ color:#e74c3c; font-size:13px; margin-top:12px; display:none; }
+  .status-msg{ font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--yellow); margin-top:10px; min-height:16px; }
+</style>
+</head>
+<body>
+
+  <!-- LOGIN -->
+  <div class="login-shell" id="loginShell">
+    <div class="login-card">
+      <img src="assets/logo.png" alt="Lemonnade logo">
+      <h1 class="display" style="font-size:1.6rem; margin-bottom:20px;">Admin Login</h1>
+      <input type="email" id="loginEmail" placeholder="Email">
+      <input type="password" id="loginPassword" placeholder="Password">
+      <button class="btn btn-yellow" style="width:100%;" onclick="handleLogin()">Log In</button>
+      <div class="login-error" id="loginError">Wrong email or password.</div>
+    </div>
+  </div>
+
+  <!-- ADMIN DASHBOARD -->
+  <div class="admin-shell" id="adminShell">
+    <div class="admin-header">
+      <h1 class="display">Site Admin</h1>
+      <button class="icon-btn" onclick="handleLogout()">Log Out</button>
+    </div>
+
+    <div class="tabs">
+      <button class="tab-btn active" data-tab="deals">Deals</button>
+      <button class="tab-btn" data-tab="events">Events</button>
+      <button class="tab-btn" data-tab="blog">Blog</button>
+    </div>
+
+    <!-- DEALS TAB -->
+    <div class="tab-panel active" id="tab-deals">
+      <div class="form-panel">
+        <h3 id="dealsFormTitle">Add A Deal</h3>
+        <input type="hidden" id="dealId">
+        <div class="form-row">
+          <label>Day / Label</label>
+          <input type="text" id="dealDayLabel" placeholder="e.g. Monday, or Tuesday & Wednesday">
+        </div>
+        <div class="form-row">
+          <label>Deal Items</label>
+          <textarea id="dealItems" rows="4" placeholder="One deal per line"></textarea>
+          <div class="hint">Each line becomes one bullet point. Example: 40% OFF Cake</div>
+        </div>
+        <div class="form-row">
+          <label>Order (lower shows first)</label>
+          <input type="number" id="dealSortOrder" value="1">
+        </div>
+        <div class="form-row checkbox-row">
+          <input type="checkbox" id="dealActive" checked>
+          <label style="margin:0;">Active (visible on site)</label>
+        </div>
+        <div class="form-actions">
+          <button class="btn btn-yellow" onclick="saveDeal()">Save Deal</button>
+          <button class="btn btn-outline" onclick="resetDealForm()">Clear Form</button>
+        </div>
+        <div class="status-msg" id="dealStatus"></div>
+      </div>
+      <div id="dealsList"></div>
+    </div>
+
+    <!-- EVENTS TAB -->
+    <div class="tab-panel" id="tab-events">
+      <div class="form-panel">
+        <h3 id="eventsFormTitle">Add An Event</h3>
+        <input type="hidden" id="eventId">
+        <div class="form-row">
+          <label>Title</label>
+          <input type="text" id="eventTitle" placeholder="e.g. Open Mic Night">
+        </div>
+        <div class="form-row">
+          <label>Date</label>
+          <input type="date" id="eventDate">
+        </div>
+        <div class="form-row">
+          <label>Time (optional)</label>
+          <input type="text" id="eventTime" placeholder="e.g. 7:00 PM">
+        </div>
+        <div class="form-row">
+          <label>Location</label>
+          <input type="text" id="eventLocation" placeholder="e.g. Weed Working Studio">
+        </div>
+        <div class="form-row">
+          <label>Description (optional)</label>
+          <textarea id="eventDescription" rows="3"></textarea>
+        </div>
+        <div class="form-row checkbox-row">
+          <input type="checkbox" id="eventBlast">
+          <label style="margin:0;">Blast (featured banner on homepage & events page)</label>
+        </div>
+        <div class="form-row checkbox-row">
+          <input type="checkbox" id="eventActive" checked>
+          <label style="margin:0;">Active (visible on site)</label>
+        </div>
+        <div class="form-actions">
+          <button class="btn btn-yellow" onclick="saveEvent()">Save Event</button>
+          <button class="btn btn-outline" onclick="resetEventForm()">Clear Form</button>
+        </div>
+        <div class="status-msg" id="eventStatus"></div>
+      </div>
+      <div id="eventsList"></div>
+    </div>
+
+    <!-- BLOG TAB -->
+    <div class="tab-panel" id="tab-blog">
+      <div class="form-panel">
+        <h3 id="blogFormTitle">Add A Blog Post</h3>
+        <input type="hidden" id="blogId">
+        <div class="form-row">
+          <label>Title</label>
+          <input type="text" id="blogTitle">
+        </div>
+        <div class="form-row">
+          <label>Category</label>
+          <select id="blogCategory">
+            <option>Culture</option>
+            <option>Studio</option>
+            <option>Product</option>
+            <option>Deals</option>
+            <option>Events</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <label>Excerpt (shown on blog list)</label>
+          <textarea id="blogExcerpt" rows="2"></textarea>
+        </div>
+        <div class="form-row">
+          <label>Full Post Body (optional for now)</label>
+          <textarea id="blogBody" rows="6"></textarea>
+        </div>
+        <div class="form-row">
+          <label>Published Date</label>
+          <input type="date" id="blogDate">
+        </div>
+        <div class="form-row checkbox-row">
+          <input type="checkbox" id="blogPublished" checked>
+          <label style="margin:0;">Published (visible on site — uncheck to save as draft)</label>
+        </div>
+        <div class="form-actions">
+          <button class="btn btn-yellow" onclick="saveBlogPost()">Save Post</button>
+          <button class="btn btn-outline" onclick="resetBlogForm()">Clear Form</button>
+        </div>
+        <div class="status-msg" id="blogStatus"></div>
+      </div>
+      <div id="blogList"></div>
+    </div>
+
+  </div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="assets/supabase-config.js"></script>
+<script src="assets/supabase-client.js"></script>
+<script>
+  // ---------- AUTH GATE ----------
+  async function checkAuth() {
+    const session = await getCurrentSession();
+    if (session) {
+      document.getElementById('loginShell').style.display = 'none';
+      document.getElementById('adminShell').classList.add('visible');
+      loadAllTabs();
+    } else {
+      document.getElementById('loginShell').style.display = 'flex';
+      document.getElementById('adminShell').classList.remove('visible');
+    }
+  }
+
+  async function handleLogin() {
+    const email = document.getElementById('loginEmail').value;
+    const password = document.getElementById('loginPassword').value;
+    const { error } = await adminSignIn(email, password);
+    if (error) {
+      document.getElementById('loginError').style.display = 'block';
+    } else {
+      document.getElementById('loginError').style.display = 'none';
+      checkAuth();
+    }
+  }
+
+  async function handleLogout() {
+    await adminSignOut();
+    checkAuth();
+  }
+
+  // ---------- TABS ----------
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+    });
+  });
+
+  function loadAllTabs() {
+    loadDealsList();
+    loadEventsList();
+    loadBlogList();
+  }
+
+  // ---------- DEALS ----------
+  async function loadDealsList() {
+    const deals = await adminFetchAll('deals', 'sort_order');
+    const list = document.getElementById('dealsList');
+    if (!deals.length) { list.innerHTML = '<div class="empty-state">No deals yet.</div>'; return; }
+    list.innerHTML = deals.map(d => `
+      <div class="admin-card">
+        <div class="admin-card-head">
+          <div>
+            <h3>${d.day_label} ${d.active ? '' : '<span style="color:var(--bone-dim); font-weight:400;">(hidden)</span>'}</h3>
+            <div class="meta">${d.items.split('|').length} items · order ${d.sort_order}</div>
+          </div>
+          <div class="actions">
+            <button class="icon-btn" onclick='editDeal(${JSON.stringify(d)})'>Edit</button>
+            <button class="icon-btn danger" onclick="deleteDeal('${d.id}')">Delete</button>
+          </div>
+        </div>
+      </div>`).join('');
+  }
+
+  function editDeal(d) {
+    document.getElementById('dealId').value = d.id;
+    document.getElementById('dealDayLabel').value = d.day_label;
+    document.getElementById('dealItems').value = d.items.split('|').map(s => s.trim()).join('\n');
+    document.getElementById('dealSortOrder').value = d.sort_order;
+    document.getElementById('dealActive').checked = d.active;
+    document.getElementById('dealsFormTitle').textContent = 'Edit Deal';
+    window.scrollTo(0, 0);
+  }
+
+  function resetDealForm() {
+    document.getElementById('dealId').value = '';
+    document.getElementById('dealDayLabel').value = '';
+    document.getElementById('dealItems').value = '';
+    document.getElementById('dealSortOrder').value = 1;
+    document.getElementById('dealActive').checked = true;
+    document.getElementById('dealsFormTitle').textContent = 'Add A Deal';
+    document.getElementById('dealStatus').textContent = '';
+  }
+
+  async function saveDeal() {
+    const id = document.getElementById('dealId').value;
+    const row = {
+      day_label: document.getElementById('dealDayLabel').value.trim(),
+      items: document.getElementById('dealItems').value.split('\n').map(s => s.trim()).filter(Boolean).join('|'),
+      sort_order: parseInt(document.getElementById('dealSortOrder').value) || 1,
+      active: document.getElementById('dealActive').checked,
+    };
+    if (id) row.id = id;
+    if (!row.day_label || !row.items) {
+      document.getElementById('dealStatus').textContent = 'Day label and at least one item are required.';
+      return;
+    }
+    const { error } = await adminUpsert('deals', row);
+    document.getElementById('dealStatus').textContent = error ? 'Error: ' + error.message : 'Saved ✓';
+    if (!error) { resetDealForm(); loadDealsList(); }
+  }
+
+  async function deleteDeal(id) {
+    if (!confirm('Delete this deal?')) return;
+    await adminDelete('deals', id);
+    loadDealsList();
+  }
+
+  // ---------- EVENTS ----------
+  async function loadEventsList() {
+    const events = await adminFetchAll('events', 'event_date');
+    const list = document.getElementById('eventsList');
+    if (!events.length) { list.innerHTML = '<div class="empty-state">No events yet.</div>'; return; }
+    list.innerHTML = events.map(e => `
+      <div class="admin-card">
+        <div class="admin-card-head">
+          <div>
+            <h3>${e.title} ${e.is_blast ? '★' : ''} ${e.active ? '' : '<span style="color:var(--bone-dim); font-weight:400;">(hidden)</span>'}</h3>
+            <div class="meta">${e.event_date}${e.event_time ? ' · ' + e.event_time : ''}${e.location ? ' · ' + e.location : ''}</div>
+          </div>
+          <div class="actions">
+            <button class="icon-btn" onclick='editEvent(${JSON.stringify(e)})'>Edit</button>
+            <button class="icon-btn danger" onclick="deleteEvent('${e.id}')">Delete</button>
+          </div>
+        </div>
+      </div>`).join('');
+  }
+
+  function editEvent(e) {
+    document.getElementById('eventId').value = e.id;
+    document.getElementById('eventTitle').value = e.title;
+    document.getElementById('eventDate').value = e.event_date;
+    document.getElementById('eventTime').value = e.event_time || '';
+    document.getElementById('eventLocation').value = e.location || '';
+    document.getElementById('eventDescription').value = e.description || '';
+    document.getElementById('eventBlast').checked = e.is_blast;
+    document.getElementById('eventActive').checked = e.active;
+    document.getElementById('eventsFormTitle').textContent = 'Edit Event';
+    window.scrollTo(0, 0);
+  }
+
+  function resetEventForm() {
+    document.getElementById('eventId').value = '';
+    document.getElementById('eventTitle').value = '';
+    document.getElementById('eventDate').value = '';
+    document.getElementById('eventTime').value = '';
+    document.getElementById('eventLocation').value = '';
+    document.getElementById('eventDescription').value = '';
+    document.getElementById('eventBlast').checked = false;
+    document.getElementById('eventActive').checked = true;
+    document.getElementById('eventsFormTitle').textContent = 'Add An Event';
+    document.getElementById('eventStatus').textContent = '';
+  }
+
+  async function saveEvent() {
+    const id = document.getElementById('eventId').value;
+    const row = {
+      title: document.getElementById('eventTitle').value.trim(),
+      event_date: document.getElementById('eventDate').value,
+      event_time: document.getElementById('eventTime').value.trim(),
+      location: document.getElementById('eventLocation').value.trim(),
+      description: document.getElementById('eventDescription').value.trim(),
+      is_blast: document.getElementById('eventBlast').checked,
+      active: document.getElementById('eventActive').checked,
+    };
+    if (id) row.id = id;
+    if (!row.title || !row.event_date) {
+      document.getElementById('eventStatus').textContent = 'Title and date are required.';
+      return;
+    }
+    const { error } = await adminUpsert('events', row);
+    document.getElementById('eventStatus').textContent = error ? 'Error: ' + error.message : 'Saved ✓';
+    if (!error) { resetEventForm(); loadEventsList(); }
+  }
+
+  async function deleteEvent(id) {
+    if (!confirm('Delete this event?')) return;
+    await adminDelete('events', id);
+    loadEventsList();
+  }
+
+  // ---------- BLOG ----------
+  async function loadBlogList() {
+    const posts = await adminFetchAll('blog_posts', 'published_date');
+    const list = document.getElementById('blogList');
+    if (!posts.length) { list.innerHTML = '<div class="empty-state">No posts yet.</div>'; return; }
+    list.innerHTML = posts.slice().reverse().map(p => `
+      <div class="admin-card">
+        <div class="admin-card-head">
+          <div>
+            <h3>${p.title} ${p.published ? '' : '<span style="color:var(--bone-dim); font-weight:400;">(draft)</span>'}</h3>
+            <div class="meta">${p.category} · ${p.published_date}</div>
+          </div>
+          <div class="actions">
+            <button class="icon-btn" onclick='editBlogPost(${JSON.stringify(p)})'>Edit</button>
+            <button class="icon-btn danger" onclick="deleteBlogPost('${p.id}')">Delete</button>
+          </div>
+        </div>
+      </div>`).join('');
+  }
+
+  function editBlogPost(p) {
+    document.getElementById('blogId').value = p.id;
+    document.getElementById('blogTitle').value = p.title;
+    document.getElementById('blogCategory').value = p.category;
+    document.getElementById('blogExcerpt').value = p.excerpt;
+    document.getElementById('blogBody').value = p.body || '';
+    document.getElementById('blogDate').value = p.published_date;
+    document.getElementById('blogPublished').checked = p.published;
+    document.getElementById('blogFormTitle').textContent = 'Edit Post';
+    window.scrollTo(0, 0);
+  }
+
+  function resetBlogForm() {
+    document.getElementById('blogId').value = '';
+    document.getElementById('blogTitle').value = '';
+    document.getElementById('blogCategory').value = 'Culture';
+    document.getElementById('blogExcerpt').value = '';
+    document.getElementById('blogBody').value = '';
+    document.getElementById('blogDate').value = new Date().toISOString().slice(0,10);
+    document.getElementById('blogPublished').checked = true;
+    document.getElementById('blogFormTitle').textContent = 'Add A Blog Post';
+    document.getElementById('blogStatus').textContent = '';
+  }
+
+  async function saveBlogPost() {
+    const id = document.getElementById('blogId').value;
+    const row = {
+      title: document.getElementById('blogTitle').value.trim(),
+      category: document.getElementById('blogCategory').value,
+      excerpt: document.getElementById('blogExcerpt').value.trim(),
+      body: document.getElementById('blogBody').value.trim(),
+      published_date: document.getElementById('blogDate').value || new Date().toISOString().slice(0,10),
+      published: document.getElementById('blogPublished').checked,
+    };
+    if (id) row.id = id;
+    if (!row.title || !row.excerpt) {
+      document.getElementById('blogStatus').textContent = 'Title and excerpt are required.';
+      return;
+    }
+    const { error } = await adminUpsert('blog_posts', row);
+    document.getElementById('blogStatus').textContent = error ? 'Error: ' + error.message : 'Saved ✓';
+    if (!error) { resetBlogForm(); loadBlogList(); }
+  }
+
+  async function deleteBlogPost(id) {
+    if (!confirm('Delete this post?')) return;
+    await adminDelete('blog_posts', id);
+    loadBlogList();
+  }
+
+  // ---------- INIT ----------
+  resetDealForm();
+  resetEventForm();
+  resetBlogForm();
+  checkAuth();
+</script>
+</body>
+</html>

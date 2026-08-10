@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Weekly Deals — Lemonnade Van Nuys</title>
+<meta name="description" content="This week's deals at Lemonnade Van Nuys — a new deal every day of the week.">
+<link rel="stylesheet" href="assets/style.css">
+<style>
+  .deals-detail{ padding:20px clamp(20px,5vw,64px) 80px; max-width:820px; }
+  .deals-detail h2{ font-family:'Bungee',sans-serif; font-size:1.4rem; text-transform:uppercase; margin:36px 0 14px; color:var(--yellow); }
+  .deals-detail h2:first-child{ margin-top:0; }
+  .deals-detail ul{ list-style:none; padding:0; }
+  .deals-detail li{ padding:10px 0; border-bottom:1px solid var(--line); color:var(--bone-dim); font-size:14.5px; }
+  .deals-detail li:last-child{ border-bottom:none; }
+</style>
+</head>
+<body>
+  <div id="site">
+
+    <section class="page-hero">
+      <div class="hero-eyebrow">Save This Week</div>
+      <h1 class="display">Weekly Deals</h1>
+      <p>There's a deal every day of the week. Stop by and save on your favorite brands.</p>
+    </section>
+
+    <div class="deals-detail" id="dealsContainer">
+      <div class="empty-state">Loading deals…</div>
+    </div>
+
+  </div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="assets/supabase-config.js"></script>
+<script src="assets/supabase-client.js"></script>
+<script src="assets/components.js"></script>
+<script>
+  mountLemonnadeSite({ activeHref: 'deals.html', logoSrc: 'assets/logo.png' });
+
+  async function renderDeals() {
+    const container = document.getElementById('dealsContainer');
+    const deals = await fetchDeals();
+    if (!deals.length) {
+      container.innerHTML = '<div class="empty-state">No deals posted right now — check back soon.</div>';
+      return;
+    }
+    container.innerHTML = deals.map(deal => {
+      const items = deal.items.split('|').map(item => `<li>${item.trim()}</li>`).join('');
+      return `<h2>${deal.day_label}</h2><ul>${items}</ul>`;
+    }).join('');
+  }
+  renderDeals();
+</script>
+</body>
+</html>
