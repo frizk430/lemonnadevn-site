@@ -152,7 +152,7 @@
 
   /* ---------- CATEGORY GRID ---------- */
   .cat-grid{ display:grid; grid-template-columns:repeat(auto-fill, minmax(150px,1fr)); gap:1px; background:var(--line); border:1px solid var(--line); border-radius:6px; overflow:hidden; }
-  .cat-tile{ background:var(--surface); padding:26px 18px; display:flex; flex-direction:column; gap:12px; min-height:140px; justify-content:space-between; transition:background 0.15s; }
+  .cat-tile{ background:var(--surface); padding:26px 18px; display:flex; flex-direction:column; gap:12px; min-height:140px; justify-content:space-between; transition:background 0.15s; text-decoration:none; color:inherit; }
   .cat-tile:hover{ background:var(--surface-2); }
   .cat-tile .top-row{ display:flex; justify-content:space-between; align-items:flex-start; }
   .cat-tile .num{ font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--bone-dim); }
