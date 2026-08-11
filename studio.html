@@ -3,60 +3,261 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Museum & Studio — Lemonnade Van Nuys</title>
-<meta name="description" content="Lemonnade Van Nuys is home to a Hip-Hop Museum and the Weed Working Hip Hop Studio — book studio time or visit the exhibit.">
+<title>We Working Hip-Hop Museum &amp; Studio | Lemonnade Van Nuys</title>
+<meta name="description" content="Explore the We Working Hip-Hop Museum inside Lemonnade Van Nuys, featuring decades of hip-hop memorabilia curated by music executive Steve Lobel — plus a real working recording studio.">
 <link rel="stylesheet" href="assets/style.css">
 <link rel="icon" type="image/x-icon" href="assets/favicon.ico">
 <link rel="icon" type="image/png" sizes="16x16" href="assets/favicon-16x16.png">
 <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32x32.png">
 <link rel="icon" type="image/png" sizes="48x48" href="assets/favicon-48x48.png">
 <link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png">
+<style>
+  .ms-hero{ padding:90px clamp(20px,5vw,64px) 70px; border-bottom:1px solid var(--line); text-align:center; }
+  .ms-hero h1{ font-family:'Bungee',sans-serif; font-size:clamp(1.8rem,4.5vw,3.2rem); text-transform:uppercase; line-height:1.15; color:var(--white); }
+  .ms-hero h1 em{ font-style:normal; color:var(--yellow); display:block; }
+  .ms-hero p{ color:var(--bone-dim); max-width:640px; margin:24px auto 0; line-height:1.8; font-size:15.5px; }
+  .ms-hero .hero-actions{ justify-content:center; margin-top:36px; display:flex; gap:14px; flex-wrap:wrap; }
+
+  .ms-section{ padding:80px clamp(20px,5vw,64px); border-bottom:1px solid var(--line); }
+  .ms-section .eyebrow{ font-family:'JetBrains Mono',monospace; font-size:11.5px; color:var(--yellow); letter-spacing:0.16em; margin-bottom:14px; text-transform:uppercase; }
+  .ms-section h2{ font-family:'Bungee',sans-serif; font-size:clamp(1.5rem,3.2vw,2.3rem); text-transform:uppercase; line-height:1.2; margin-bottom:22px; max-width:700px; }
+  .ms-section .body-copy{ color:var(--bone-dim); line-height:1.85; font-size:15px; max-width:640px; }
+  .ms-section .body-copy p{ margin-bottom:18px; }
+  .ms-section .body-copy p:last-child{ margin-bottom:0; }
+  .ms-badge{ display:inline-block; font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:0.12em; text-transform:uppercase; border:1px solid var(--yellow); color:var(--yellow); padding:8px 16px; border-radius:20px; margin-top:26px; }
+
+  .artifact-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:16px; margin-top:40px; }
+  .artifact-card{ background:var(--surface); border:1px solid var(--line); border-radius:6px; padding:26px 22px; }
+  .artifact-card .artist{ font-family:'Bungee',sans-serif; font-size:0.95rem; text-transform:uppercase; color:var(--yellow); margin-bottom:8px; }
+  .artifact-card .item{ color:var(--bone-dim); font-size:13.5px; line-height:1.6; }
+
+  .artist-wall{ display:flex; gap:10px; flex-wrap:wrap; margin-top:32px; }
+  .artist-chip{ font-family:'JetBrains Mono',monospace; font-size:12px; border:1px solid var(--line); color:var(--bone); padding:10px 16px; border-radius:20px; }
+
+  .recorded-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(160px,1fr)); gap:16px; margin-top:36px; max-width:600px; }
+  .recorded-card{ background:var(--surface); border:1px solid var(--yellow); border-radius:6px; padding:28px 20px; text-align:center; }
+  .recorded-card .artist{ font-family:'Bungee',sans-serif; font-size:1rem; text-transform:uppercase; }
+  .recorded-card .label{ font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--bone-dim); letter-spacing:0.1em; margin-top:8px; text-transform:uppercase; }
+
+  .event-feature{ background:var(--surface); border:1px solid var(--line); border-radius:6px; padding:44px 36px; margin-top:36px; max-width:720px; }
+  .event-feature h3{ font-family:'Bungee',sans-serif; font-size:1.4rem; text-transform:uppercase; }
+  .event-feature .date{ font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--yellow); margin-top:8px; letter-spacing:0.08em; }
+  .event-feature .desc{ color:var(--bone-dim); line-height:1.8; font-size:14.5px; margin-top:18px; }
+
+  .timeline{ margin-top:44px; max-width:680px; position:relative; padding-left:32px; }
+  .timeline::before{ content:''; position:absolute; left:8px; top:6px; bottom:6px; width:2px; background:var(--yellow); }
+  .tl-item{ position:relative; padding-bottom:40px; }
+  .tl-item:last-child{ padding-bottom:0; }
+  .tl-item::before{ content:''; position:absolute; left:-29px; top:5px; width:12px; height:12px; border-radius:50%; background:var(--ink); border:2.5px solid var(--yellow); }
+  .tl-item .year{ font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--yellow); letter-spacing:0.12em; }
+  .tl-item h4{ font-family:'Bungee',sans-serif; font-size:1.05rem; text-transform:uppercase; margin:8px 0 10px; color:var(--white); }
+  .tl-item p{ color:var(--bone-dim); font-size:14px; line-height:1.75; }
+
+  .booking-block{ background:var(--surface); border:1px solid var(--line); border-radius:6px; padding:44px 36px; }
+  .booking-types{ display:flex; gap:10px; flex-wrap:wrap; margin:26px 0 34px; }
+  .booking-types span{ font-family:'JetBrains Mono',monospace; font-size:11.5px; border:1px solid var(--line); padding:8px 14px; border-radius:20px; color:var(--bone-dim); }
+
+  .visit-cta{ text-align:center; padding:90px clamp(20px,5vw,64px); }
+  .visit-cta h2{ font-family:'Bungee',sans-serif; font-size:clamp(1.6rem,3.6vw,2.6rem); text-transform:uppercase; }
+  .visit-cta p{ color:var(--bone-dim); max-width:560px; margin:22px auto 0; line-height:1.8; }
+  .visit-cta .address{ font-family:'JetBrains Mono',monospace; font-size:14px; color:var(--yellow); margin-top:30px; line-height:1.8; }
+  .visit-cta .hero-actions{ justify-content:center; margin-top:36px; display:flex; gap:14px; flex-wrap:wrap; }
+
+  @media (max-width:700px){
+    .ms-section{ padding:60px clamp(20px,5vw,64px); }
+  }
+</style>
 </head>
 <body>
   <div id="site">
 
-    <section class="page-hero">
-      <div class="hero-eyebrow">Not Just A Dispensary</div>
-      <h1 class="display">Weed Working — Museum &amp; Studio</h1>
-      <p>A piece of hip-hop history and a full working recording studio, right above the shop floor.</p>
+    <!-- HERO -->
+    <section class="ms-hero">
+      <div style="font-family:'JetBrains Mono',monospace; font-size:11.5px; color:var(--yellow); letter-spacing:0.16em; text-transform:uppercase; margin-bottom:18px;">Lemonnade Van Nuys</div>
+      <h1>More Than A Dispensary.<em>A Home For Hip-Hop Culture.</em></h1>
+      <p>Lemonnade Van Nuys brings cannabis, music, art and decades of hip-hop history together under one roof. Explore the We Working Hip-Hop Museum, step inside a real working recording studio, and experience a side of Lemonnade you won't find at an ordinary dispensary.</p>
+      <div class="hero-actions">
+        <a href="#museum" class="btn btn-yellow" style="text-decoration:none; display:inline-block;">Explore The Museum</a>
+        <a href="#studio" class="btn btn-outline" style="text-decoration:none; display:inline-block;">Discover The Studio</a>
+      </div>
     </section>
 
-    <div class="studio-hero-panel">
-      <div class="studio-panel">
-        <div class="stamp" style="border-color:var(--yellow); margin-bottom:24px;"><span style="color:var(--yellow);">HIP HOP<br>MUSEUM</span></div>
-        <h3 style="font-family:'Bungee',sans-serif; font-size:1.5rem; text-transform:uppercase; margin-bottom:14px;">The Museum</h3>
-        <p style="color:var(--bone-dim); line-height:1.75; font-size:14.5px; margin-bottom:20px;">Rare memorabilia, vinyl, and hip-hop history on permanent display — a piece of the culture you can walk through while you shop. Exhibits rotate throughout the year, so there's always something new to see.</p>
-        <div class="tags" style="display:flex; gap:8px; flex-wrap:wrap;">
-          <span style="font-family:'JetBrains Mono',monospace; font-size:11px; border:1px solid var(--line); padding:6px 10px; border-radius:20px; color:var(--bone-dim);">Free with visit</span>
-          <span style="font-family:'JetBrains Mono',monospace; font-size:11px; border:1px solid var(--line); padding:6px 10px; border-radius:20px; color:var(--bone-dim);">Rotating exhibits</span>
-        </div>
+    <!-- THE MUSEUM -->
+    <section class="ms-section" id="museum">
+      <div class="eyebrow">The Museum</div>
+      <h2>Hip-Hop History You Can Walk Through.</h2>
+      <div class="body-copy">
+        <p>The We Working Hip-Hop Museum at Lemonnade Van Nuys celebrates decades of hip-hop culture through memorabilia collected throughout music executive Steve Lobel's career, along with pieces contributed by artists themselves.</p>
+        <p>This isn't a collection created overnight. It's a living archive shaped by the people, music and moments that helped define hip-hop. From rare promotional pieces and artist memorabilia to artifacts connected to some of the culture's most recognizable names, every corner tells a story.</p>
       </div>
-      <div class="studio-panel">
-        <div class="stamp" style="border-color:var(--yellow); margin-bottom:24px;"><span style="color:var(--yellow);">WEED<br>WORKING</span></div>
-        <h3 style="font-family:'Bungee',sans-serif; font-size:1.5rem; text-transform:uppercase; margin-bottom:14px;">The Studio</h3>
-        <p style="color:var(--bone-dim); line-height:1.75; font-size:14.5px; margin-bottom:20px;">A full working recording studio on-site — Weed Working Hip Hop Studio. Local artists record, write, and create right above the shop floor. Fill out the form below to inquire about booking time.</p>
-        <div class="tags" style="display:flex; gap:8px; flex-wrap:wrap;">
-          <span style="font-family:'JetBrains Mono',monospace; font-size:11px; border:1px solid var(--line); padding:6px 10px; border-radius:20px; color:var(--bone-dim);">Book studio time</span>
-          <span style="font-family:'JetBrains Mono',monospace; font-size:11px; border:1px solid var(--line); padding:6px 10px; border-radius:20px; color:var(--bone-dim);">Local artists welcome</span>
-        </div>
-      </div>
-    </div>
+      <span class="ms-badge">Explore In-Store</span>
 
-    <div class="block-head" style="padding:0 clamp(20px,5vw,64px); margin-bottom:24px;">
-      <div><div class="block-eyebrow">Book Studio Time</div><h2 class="block-title display">Request A Session</h2></div>
-    </div>
-    <form class="booking-form" onsubmit="return handleBookingSubmit(event)">
-      <label for="name">Name</label>
-      <input type="text" id="name" required>
-      <label for="email">Email or Phone</label>
-      <input type="text" id="email" required>
-      <label for="date">Preferred Date</label>
-      <input type="date" id="date">
-      <label for="notes">What are you working on?</label>
-      <textarea id="notes" rows="4"></textarea>
-      <button type="submit" class="btn btn-yellow" style="margin-top:24px; width:100%;">Send Request</button>
-      <p style="font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--bone-dim); margin-top:14px;" id="bookingStatus"></p>
-    </form>
+      <div style="margin-top:60px;">
+        <div class="eyebrow">Some Things You'll Find Inside</div>
+        <div class="artifact-grid">
+          <div class="artifact-card"><div class="artist">Eazy-E</div><div class="item">N.W.A-era jacket</div></div>
+          <div class="artifact-card"><div class="artist">DMX</div><div class="item">Ruff Ryders hat</div></div>
+          <div class="artifact-card"><div class="artist">Nipsey Hussle</div><div class="item">His first shoe collaboration with Pony</div></div>
+          <div class="artifact-card"><div class="artist">Death Row Records</div><div class="item">The Death Row throne, documented inside Lemonnade by High Times</div></div>
+        </div>
+        <p style="color:var(--bone-dim); font-size:13px; margin-top:20px; font-family:'JetBrains Mono',monospace;">Displays are paired with QR codes telling the stories behind the pieces.</p>
+      </div>
+    </section>
+
+    <!-- CURATED BY LOBEL -->
+    <section class="ms-section">
+      <div class="eyebrow">Built From A Life In Music</div>
+      <h2>Curated By Steve Lobel</h2>
+      <div class="body-copy">
+        <p>The museum reflects more than three decades of Steve Lobel's career in the music industry. Instead of building a traditional museum and searching for pieces to fill it, Lobel had spent years holding onto promotional items, memorabilia and pieces of music history.</p>
+        <p>When artists began contributing pieces of their own, the collection continued to grow. Lobel described the process of creating the museum as essentially freestyling it — allowing his experiences and relationships throughout hip-hop to shape the collection.</p>
+      </div>
+    </section>
+
+    <!-- ARTISTS & CULTURE -->
+    <section class="ms-section">
+      <div class="eyebrow">Artists &amp; Culture</div>
+      <h2>People Who've Come Through</h2>
+      <div class="body-copy">
+        <p>From meet-and-greets to museum visits, interviews and launch events — Lemonnade Van Nuys has hosted some of hip-hop's most recognizable names.</p>
+      </div>
+      <div class="artist-wall">
+        <span class="artist-chip">DMC</span>
+        <span class="artist-chip">Dave East</span>
+        <span class="artist-chip">Benny The Butcher</span>
+        <span class="artist-chip">Conway The Machine</span>
+        <span class="artist-chip">Krayzie Bone</span>
+        <span class="artist-chip">OhGeesy</span>
+        <span class="artist-chip">Antonio Brown</span>
+        <span class="artist-chip">Hit-Boy</span>
+        <span class="artist-chip">Sticky Fingaz</span>
+        <span class="artist-chip">Lefty Gunplay</span>
+      </div>
+    </section>
+
+    <!-- THE STUDIO -->
+    <section class="ms-section" id="studio">
+      <div class="eyebrow">The Studio</div>
+      <h2>Create Where Culture Lives.</h2>
+      <div class="body-copy">
+        <p>The We Working Studio isn't a display. It's a real, functional recording studio located inside Lemonnade Van Nuys, created to give artists, producers and creatives a place to make music surrounded by the culture that inspired it.</p>
+        <p>The studio features professional recording equipment, live instruments, an engineer and a raised DJ stage designed for sessions, events and artist experiences.</p>
+        <p><b style="color:var(--bone);">From shop floor to studio.</b> Come for Lemonnade. Discover the museum. Create upstairs.</p>
+      </div>
+
+      <div style="margin-top:60px;">
+        <div class="eyebrow">Recorded Here</div>
+        <h2 style="font-size:clamp(1.2rem,2.4vw,1.6rem);">Music Has Actually Been Made Here.</h2>
+        <div class="body-copy"><p>The studio isn't just part of the decor. Artists who have recorded inside the Lemonnade booth include:</p></div>
+        <div class="recorded-grid">
+          <div class="recorded-card"><div class="artist">Lil' Cease</div><div class="label">Recorded Here</div></div>
+          <div class="recorded-card"><div class="artist">Layzie Bone</div><div class="label">Recorded Here</div></div>
+          <div class="recorded-card"><div class="artist">Snow</div><div class="label">Recorded Here</div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- EVENTS -->
+    <section class="ms-section">
+      <div class="eyebrow">Events &amp; Listening Sessions</div>
+      <h2>Where Cannabis And Music Meet.</h2>
+      <div class="event-feature">
+        <h3>Antonio Brown — Paradigm</h3>
+        <div class="date">Lemonnade Van Nuys · April 19, 2022</div>
+        <div class="desc">Antonio Brown came to Lemonnade Van Nuys for the release of his AB Biscotti cannabis collaboration and a listening event connected with his debut album <i>Paradigm</i>. DJ Carisma and Steve Lobel were also there, with fans attending for photos and autographs — documented by both High Times and AllHipHop.</div>
+        <div style="font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--bone-dim); margin-top:16px; letter-spacing:0.06em;">ALBUM LISTENING EXPERIENCE × AB BISCOTTI LAUNCH</div>
+      </div>
+    </section>
+
+    <!-- TIMELINE -->
+    <section class="ms-section">
+      <div class="eyebrow">The Story So Far</div>
+      <h2>Timeline</h2>
+      <div class="timeline">
+        <div class="tl-item">
+          <span class="year">2021</span>
+          <h4>The Museum Opens</h4>
+          <p>The We Working Hip-Hop Museum takes shape inside Lemonnade, bringing together decades of memorabilia collected by Steve Lobel and pieces contributed by artists.</p>
+        </div>
+        <div class="tl-item">
+          <span class="year">2021</span>
+          <h4>Music Gets Made</h4>
+          <p>The on-site recording studio becomes part of the Lemonnade experience. Lil' Cease, Layzie Bone and Snow are among the artists who record in the booth.</p>
+        </div>
+        <div class="tl-item">
+          <span class="year">2021–2022</span>
+          <h4>Artists Come Through</h4>
+          <p>DMC, Dave East, Benny The Butcher, OhGeesy, Krayzie Bone and Conway The Machine are among artists associated with meet-and-greets and visits to the space.</p>
+        </div>
+        <div class="tl-item">
+          <span class="year">April 2022</span>
+          <h4>Paradigm × AB Biscotti</h4>
+          <p>Antonio Brown brings music and cannabis together at Lemonnade with his Paradigm album event and AB Biscotti launch.</p>
+        </div>
+        <div class="tl-item">
+          <span class="year">May 2022</span>
+          <h4>Hit-Boy</h4>
+          <p>Grammy-winning producer Hit-Boy appears at Lemonnade while launching Hit-Boy OG, with TMZ interviewing him at the location.</p>
+        </div>
+        <div class="tl-item">
+          <span class="year">December 2024</span>
+          <h4>Sticky Fingaz</h4>
+          <p>Sticky Fingaz holds a meet-and-greet and Rapper Weed strain launch at Lemonnade.</p>
+        </div>
+        <div class="tl-item">
+          <span class="year">December 2024</span>
+          <h4>Lefty Gunplay</h4>
+          <p>Lemonnade follows with another artist meet-and-greet featuring Lefty Gunplay.</p>
+        </div>
+        <div class="tl-item">
+          <span class="year">Today</span>
+          <h4>The Story Continues.</h4>
+          <p>The museum and studio remain part of what separates Lemonnade Van Nuys from an ordinary cannabis shop.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- BOOKING -->
+    <section class="ms-section">
+      <div class="eyebrow">Ready To Create?</div>
+      <h2>Book The We Working Studio.</h2>
+      <div class="body-copy"><p>Artists, producers and creatives interested in recording at We Working Studios can contact us for availability and studio information.</p></div>
+      <div class="booking-types">
+        <span>Recording Sessions</span>
+        <span>Artist Sessions</span>
+        <span>Content Creation</span>
+        <span>Private Inquiries</span>
+      </div>
+      <div class="booking-block" style="max-width:520px;">
+        <form onsubmit="return handleBookingSubmit(event)">
+          <div style="margin-bottom:16px;">
+            <label style="display:block; font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--bone-dim); letter-spacing:0.1em; text-transform:uppercase; margin-bottom:8px;">Name</label>
+            <input type="text" id="name" required style="width:100%; background:var(--ink); border:1px solid var(--line); border-radius:4px; padding:12px 14px; color:var(--bone); font-family:'Space Grotesk',sans-serif; font-size:14px;">
+          </div>
+          <div style="margin-bottom:16px;">
+            <label style="display:block; font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--bone-dim); letter-spacing:0.1em; text-transform:uppercase; margin-bottom:8px;">Email or Phone</label>
+            <input type="text" id="email" required style="width:100%; background:var(--ink); border:1px solid var(--line); border-radius:4px; padding:12px 14px; color:var(--bone); font-family:'Space Grotesk',sans-serif; font-size:14px;">
+          </div>
+          <div style="margin-bottom:16px;">
+            <label style="display:block; font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--bone-dim); letter-spacing:0.1em; text-transform:uppercase; margin-bottom:8px;">What are you working on?</label>
+            <textarea id="notes" rows="4" style="width:100%; background:var(--ink); border:1px solid var(--line); border-radius:4px; padding:12px 14px; color:var(--bone); font-family:'Space Grotesk',sans-serif; font-size:14px;"></textarea>
+          </div>
+          <button type="submit" class="btn btn-yellow" style="width:100%;">Inquire About Studio Time</button>
+          <p style="font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--bone-dim); margin-top:14px;" id="bookingStatus"></p>
+        </form>
+      </div>
+    </section>
+
+    <!-- VISIT CTA -->
+    <section class="visit-cta">
+      <h2>Don't Just Shop.<br>Experience It.</h2>
+      <p>Visit the We Working Hip-Hop Museum inside Lemonnade Van Nuys. Explore hip-hop history, discover memorabilia collected across decades in music and experience one of the things that makes Lemonnade different.</p>
+      <div class="address">7040 Hayvenhurst Ave<br>Van Nuys, CA 91406</div>
+      <div class="hero-actions">
+        <a href="https://maps.google.com/?q=7040+Hayvenhurst+Ave+Van+Nuys+CA+91406" target="_blank" rel="noopener" class="btn btn-outline" style="text-decoration:none; display:inline-block;">Get Directions</a>
+        <a href="menu.html" class="btn btn-yellow" style="text-decoration:none; display:inline-block;">Shop Lemonnade</a>
+      </div>
+    </section>
 
   </div>
 
@@ -64,11 +265,11 @@
 <script>
   mountLemonnadeSite({ activeHref: 'studio.html', logoSrc: 'assets/logo.png' });
 
-  // Placeholder handler — Phase 2 wires this to actually send the request (email or Supabase table).
+  // Placeholder handler — booking form isn't wired to send anywhere yet.
   function handleBookingSubmit(e) {
     e.preventDefault();
     document.getElementById('bookingStatus').textContent =
-      "This form isn't connected yet — for now, please call or DM the shop directly to book studio time.";
+      "This form isn't connected yet — for now, please call or DM the shop directly about studio time.";
     return false;
   }
 </script>
