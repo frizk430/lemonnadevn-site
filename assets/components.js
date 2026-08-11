@@ -66,6 +66,10 @@ function renderFooter(logoSrc) {
       <div><h5>Shop</h5><ul><li><a href="menu.html">Flower</a></li><li><a href="menu.html">Vapes</a></li><li><a href="menu.html">Edibles</a></li><li><a href="deals.html">Deals</a></li></ul></div>
       <div><h5>Experience</h5><ul><li><a href="studio.html">Museum</a></li><li><a href="studio.html">Studio</a></li><li><a href="events.html">Events</a></li><li><a href="about.html">Contact</a></li></ul></div>
       <div><h5>Legal</h5><ul><li>21+ Only</li><li>Terms</li><li>Privacy</li><li>Licensing</li></ul></div>
+      <div><h5>Follow Us</h5><ul>
+        <li><a href="https://instagram.com/LemonnadeVanNuys" target="_blank" rel="noopener">@LemonnadeVanNuys</a></li>
+        <li><a href="https://instagram.com/WeWorkingStudios" target="_blank" rel="noopener">@WeWorkingStudios</a></li>
+      </ul></div>
     </footer>
     <div class="foot-bottom">
       <span>© 2026 Lemonnade Van Nuys</span>
