@@ -63,6 +63,13 @@
   .visit-cta .address{ font-family:'JetBrains Mono',monospace; font-size:14px; color:var(--yellow); margin-top:30px; line-height:1.8; }
   .visit-cta .hero-actions{ justify-content:center; margin-top:36px; display:flex; gap:14px; flex-wrap:wrap; }
 
+  .ms-photo{ width:100%; border-radius:6px; border:1px solid var(--line); display:block; margin-top:36px; }
+  .ms-photo-pair{ display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:36px; }
+  .ms-photo-pair img{ width:100%; height:100%; object-fit:cover; border-radius:6px; border:1px solid var(--line); display:block; }
+  @media (max-width:700px){
+    .ms-photo-pair{ grid-template-columns:1fr; }
+  }
+
   @media (max-width:700px){
     .ms-section{ padding:60px clamp(20px,5vw,64px); }
   }
@@ -91,6 +98,12 @@
         <p>This isn't a collection created overnight. It's a living archive shaped by the people, music and moments that helped define hip-hop. From rare promotional pieces and artist memorabilia to artifacts connected to some of the culture's most recognizable names, every corner tells a story.</p>
       </div>
       <span class="ms-badge">Explore In-Store</span>
+
+      <img class="ms-photo" src="assets/photos/museum-floor.jpg" alt="Inside the We Working Hip-Hop Museum at Lemonnade Van Nuys — display cases, memorabilia and jackets on the museum floor">
+      <div class="ms-photo-pair">
+        <img src="assets/photos/museum-throne.jpg" alt="The Death Row Records throne on display inside the museum">
+        <img src="assets/photos/museum-dj-stage.jpg" alt="The raised DJ stage with turntables inside the museum">
+      </div>
 
       <div style="margin-top:60px;">
         <div class="eyebrow">Some Things You'll Find Inside</div>
@@ -145,10 +158,16 @@
         <p><b style="color:var(--bone);">From shop floor to studio.</b> Come for Lemonnade. Discover the museum. Create upstairs.</p>
       </div>
 
+      <div class="ms-photo-pair">
+        <img src="assets/photos/studio-control-room.jpg" alt="The We Working Studio control room — keyboards, monitors and production desk">
+        <img src="assets/photos/studio-lounge.jpg" alt="The studio lounge at We Working Studios">
+      </div>
+
       <div style="margin-top:60px;">
         <div class="eyebrow">Recorded Here</div>
         <h2 style="font-size:clamp(1.2rem,2.4vw,1.6rem);">Music Has Actually Been Made Here.</h2>
         <div class="body-copy"><p>The studio isn't just part of the decor. Artists who have recorded inside the Lemonnade booth include:</p></div>
+        <img class="ms-photo" style="max-width:520px;" src="assets/photos/vocal-booth.jpg" alt="The vocal booth at We Working Studios — mic, pop filter and acoustic panels">
         <div class="recorded-grid">
           <div class="recorded-card"><div class="artist">Lil' Cease</div><div class="label">Recorded Here</div></div>
           <div class="recorded-card"><div class="artist">Layzie Bone</div><div class="label">Recorded Here</div></div>
