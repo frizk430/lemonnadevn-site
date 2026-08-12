@@ -69,6 +69,7 @@ function renderFooter(logoSrc) {
       <div><h5>Follow Us</h5><ul>
         <li><a href="https://instagram.com/LemonnadeVanNuys" target="_blank" rel="noopener">@LemonnadeVanNuys</a></li>
         <li><a href="https://instagram.com/WeWorkingStudios" target="_blank" rel="noopener">@WeWorkingStudios</a></li>
+        <li><a href="https://g.page/r/CePXtx45vIyFEBM/review" target="_blank" rel="noopener">⭐ Review Us on Google</a></li>
       </ul></div>
     </footer>
     <div class="foot-bottom">
