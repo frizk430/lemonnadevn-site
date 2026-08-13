@@ -63,9 +63,9 @@ function renderFooter(logoSrc) {
         <a href="index.html" class="logo"><img src="${logoSrc}" alt="Lemonnade Van Nuys logo"></a>
         <p style="max-width:280px;">7040 Hayvenhurst Ave<br>Van Nuys, CA · Open Daily 8AM–9:50PM</p>
       </div>
-      <div><h5>Shop</h5><ul><li><a href="menu.html">Flower</a></li><li><a href="menu.html">Vapes</a></li><li><a href="menu.html">Edibles</a></li><li><a href="deals.html">Deals</a></li></ul></div>
+      <div><h5>Shop</h5><ul><li><a href="https://embed.getmeadow.com/organizations/1350/collections/categories/8738" target="_blank" rel="noopener">Flower</a></li><li><a href="https://embed.getmeadow.com/organizations/1350/collections/categories/8745" target="_blank" rel="noopener">Vapes</a></li><li><a href="https://embed.getmeadow.com/organizations/1350/collections/categories/8740" target="_blank" rel="noopener">Edibles</a></li><li><a href="deals.html">Deals</a></li></ul></div>
       <div><h5>Experience</h5><ul><li><a href="studio.html">Museum</a></li><li><a href="studio.html">Studio</a></li><li><a href="events.html">Events</a></li><li><a href="about.html">Contact</a></li></ul></div>
-      <div><h5>Legal</h5><ul><li>21+ Only</li><li>Terms</li><li>Privacy</li><li>Licensing</li></ul></div>
+      <div><h5>Legal</h5><ul><li><a href="age-policy.html">21+ Only</a></li><li><a href="terms.html">Terms</a></li><li><a href="privacy.html">Privacy</a></li><li><a href="licensing.html">Licensing</a></li></ul></div>
       <div><h5>Follow Us</h5><ul>
         <li><a href="https://instagram.com/LemonnadeVanNuys" target="_blank" rel="noopener">@LemonnadeVanNuys</a></li>
         <li><a href="https://instagram.com/WeWorkingStudios" target="_blank" rel="noopener">@WeWorkingStudios</a></li>
@@ -91,7 +91,7 @@ function renderAgeGate(logoSrc) {
         <button class="btn btn-outline" onclick="denyGate()">I'm Under 21</button>
       </div>
       <div class="gate-deny" id="denyMsg">Sorry — you must be 21 years or older (or a valid medical patient 18+) to access this site, per California state law.</div>
-      <div class="gate-fine">By entering, you agree to our <a href="#">Terms</a>. For use only by adults 21+. Keep out of reach of children.</div>
+      <div class="gate-fine">By entering, you agree to our <a href="terms.html">Terms</a>. For use only by adults 21+. Keep out of reach of children.</div>
     </div>
   </div>`;
 }
