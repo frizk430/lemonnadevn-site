@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Lemonnade Van Nuys — Offer</title>
+<style>
+  :root{--bg:#0d0d0d;--card:#181818;--ink:#fff;--muted:#a8a8a8;--y:#f5c400;--line:#2c2c2c;--red:#ff6b6b}
+  *{box-sizing:border-box}
+  body{margin:0;min-height:100vh;background:var(--bg);color:var(--ink);font:16px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;display:flex;flex-direction:column}
+  header{padding:18px 16px;text-align:center;border-bottom:3px solid var(--y)}
+  header a{color:var(--y);text-decoration:none;font-weight:900;font-size:22px;letter-spacing:.06em}
+  main{flex:1;width:100%;max-width:480px;margin:0 auto;padding:24px 16px}
+  .hidden{display:none!important}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:22px}
+  .kicker{color:var(--y);font-weight:800;text-transform:uppercase;letter-spacing:.12em;font-size:12px;margin:0 0 6px}
+  h1{font-size:30px;line-height:1.1;margin:0 0 12px;font-weight:900}
+  p{margin:0 0 12px;color:#ddd}
+  .fine{font-size:12px;color:var(--muted);margin-top:14px}
+  .btn{display:block;width:100%;text-align:center;padding:15px;border-radius:12px;border:none;font:inherit;font-weight:800;font-size:17px;cursor:pointer;text-decoration:none;margin-top:12px}
+  .btn.y{background:var(--y);color:#111}
+  .btn.o{background:transparent;color:var(--ink);border:1px solid #444}
+  .btn:disabled{opacity:.6;cursor:wait}
+  .code{margin:16px 0 6px;padding:18px;border:2px dashed var(--y);border-radius:12px;text-align:center}
+  .code b{display:block;font-size:34px;letter-spacing:.12em;color:var(--y);word-break:break-all}
+  .code span{font-size:13px;color:var(--muted)}
+  .msg{padding:12px 14px;border-radius:10px;background:#222;margin-top:12px;font-size:14px}
+  .msg.err{background:#3a1717;color:#ffd0d0}
+  .gate{text-align:center}
+  .gate h1{font-size:26px}
+  footer{padding:18px 16px;text-align:center;font-size:11px;color:var(--muted);border-top:1px solid var(--line);line-height:1.6}
+</style>
+</head>
+<body>
+<header><a href="index.html">LEMONNADE VAN NUYS</a></header>
+
+<main>
+  <!-- Age gate -->
+  <section id="gate" class="card gate hidden">
+    <p class="kicker">Adults only</p>
+    <h1>Are you 21 or older?</h1>
+    <p>Or 18+ with a valid medical recommendation.</p>
+    <button class="btn y" id="gateYes">Yes, enter</button>
+    <button class="btn o" id="gateNo">No</button>
+  </section>
+
+  <section id="loading" class="card"><p>Loading offer…</p></section>
+
+  <section id="ended" class="card hidden">
+    <p class="kicker">Offer ended</p>
+    <h1>This deal isn't running right now.</h1>
+    <p>Check this week's deals instead.</p>
+    <a class="btn y" id="dealsLink" href="/">See current deals</a>
+  </section>
+
+  <section id="offer" class="card hidden">
+    <p class="kicker" id="kicker">Exclusive offer</p>
+    <h1 id="headline"></h1>
+    <p id="offerText"></p>
+
+    <!-- Ad / nearby: reveal code -->
+    <div id="revealWrap" class="hidden">
+      <button class="btn y" id="revealBtn">Show my code</button>
+    </div>
+
+    <!-- Check-in -->
+    <div id="checkinWrap" class="hidden">
+      <p style="color:var(--muted);font-size:14px">You need to be at the shop to unlock this. We check your location once and don't save it.</p>
+      <button class="btn y" id="checkinBtn">Check in</button>
+    </div>
+
+    <div id="codeBox" class="code hidden">
+      <span>Show this at the register</span>
+      <b id="codeText"></b>
+    </div>
+
+    <div id="status" class="msg hidden"></div>
+
+    <a class="btn o" id="dirBtn" target="_blank" rel="noopener"
+       href="https://www.google.com/maps/dir/?api=1&destination=7040+Hayvenhurst+Ave,+Van+Nuys,+CA+91406">Get directions</a>
+    <a class="btn o" id="menuBtn" href="/">See the menu</a>
+
+    <p class="fine" id="fine"></p>
+  </section>
+</main>
+
+<footer>
+  Daddy's Pipes Inc dba Lemonnade Van Nuys · 7040 Hayvenhurst Ave, Van Nuys, CA 91406<br>
+  DCC License C12-0000092-LIC · For use only by adults 21+ or qualified patients 18+.<br>
+  Keep out of reach of children and animals.
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+// ---------- Config ----------
+const SUPABASE_URL = 'https://ccczquselvfnomyatdat.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_uMlPLAmhfGmVFiHniYqdPQ_vtAwKoVI';
+const MENU_URL  = 'menu.html';
+const DEALS_URL = 'deals.html';
+const AGE_KEY   = 'lmnd_age_ok'; // same key as the site's age gate (components.js)
+
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const $ = id => document.getElementById(id);
+const params = new URLSearchParams(location.search);
+const slug = (params.get('c') || '').toLowerCase().replace(/[^a-z0-9-]/g, '');
+let campaign = null;
+
+$('menuBtn').href = MENU_URL; $('dealsLink').href = DEALS_URL;
+
+function store(get, key, val){
+  try { return get ? sessionStorage.getItem(key) : sessionStorage.setItem(key, val); } catch { return null; }
+}
+function sessionOnce(key){
+  try { if (sessionStorage.getItem(key)) return false; sessionStorage.setItem(key, '1'); return true; } catch { return true; }
+}
+function show(id){ ['gate','loading','ended','offer'].forEach(x => $(x).classList.toggle('hidden', x !== id)); }
+function status(msg, err=false){ const s = $('status'); s.textContent = msg; s.className = 'msg' + (err ? ' err' : ''); }
+function feet(m){ const ft = Math.round(m * 3.28084); return ft >= 2640 ? (ft/5280).toFixed(1) + ' miles' : ft.toLocaleString() + ' ft'; }
+function showCode(code){
+  $('codeText').textContent = code; $('codeBox').classList.remove('hidden');
+}
+
+// ---------- Age gate ----------
+function start(){
+  if (store(true, AGE_KEY) === '1') return load();
+  show('gate');
+}
+$('gateYes').onclick = () => { store(false, AGE_KEY, '1'); load(); };
+$('gateNo').onclick  = () => { location.href = 'https://www.google.com'; };
+
+// ---------- Load campaign ----------
+async function load(){
+  show('loading');
+  if (!slug) return show('ended');
+  const { data, error } = await sb.rpc('geo_campaign_public', { p_slug: slug });
+  if (error || !data || !data.ok) return show('ended');
+  campaign = data;
+
+  if (sessionOnce('geo_visit_' + slug)){
+    sb.rpc('geo_log', { p_slug: slug, p_event: 'visit',
+      p_source: params.get('utm_source'), p_medium: params.get('utm_medium') });
+  }
+
+  document.title = `${data.headline} — Lemonnade Van Nuys`;
+  $('headline').textContent = data.headline;
+  $('offerText').textContent = data.offer || '';
+  $('offerText').classList.toggle('hidden', !data.offer);
+  const ends = data.ends_on ? ` Ends ${new Date(data.ends_on + 'T12:00:00').toLocaleDateString(undefined,{month:'short',day:'numeric'})}.` : '';
+  $('fine').textContent = (data.fine_print || '') + ends;
+
+  if (data.type === 'checkin'){
+    $('kicker').textContent = 'In-store check-in';
+    $('checkinWrap').classList.remove('hidden');
+  } else if (data.promo_code){
+    $('revealWrap').classList.remove('hidden');
+  }
+  show('offer');
+}
+
+// ---------- Reveal code (ad / nearby) ----------
+$('revealBtn').onclick = () => {
+  showCode(campaign.promo_code);
+  $('revealWrap').classList.add('hidden');
+  sb.rpc('geo_log', { p_slug: slug, p_event: 'code_view',
+    p_source: params.get('utm_source'), p_medium: params.get('utm_medium') });
+};
+
+// ---------- Check-in ----------
+$('checkinBtn').onclick = () => {
+  if (!('geolocation' in navigator)) return status("Your browser can't share location. Ask a budtender for help.", true);
+  const btn = $('checkinBtn');
+  btn.disabled = true; btn.textContent = 'Finding you…';
+  status('Your phone will ask to share your location — tap Allow.');
+
+  navigator.geolocation.getCurrentPosition(async pos => {
+    const { latitude, longitude, accuracy } = pos.coords;
+    const { data, error } = await sb.rpc('geo_checkin', {
+      p_slug: slug, p_lat: latitude, p_lng: longitude, p_accuracy: accuracy || 0
+    });
+    btn.disabled = false; btn.textContent = 'Try again';
+    if (error || !data || !data.ok){ return status('Something went wrong. Ask a budtender for help.', true); }
+    if (data.inside){
+      $('checkinWrap').classList.add('hidden');
+      $('status').classList.add('hidden');
+      $('kicker').textContent = "You're checked in";
+      showCode(data.promo_code);
+    } else {
+      status(`Looks like you're about ${feet(data.distance_m)} away. Come by the shop and check in from inside.`, true);
+    }
+  }, err => {
+    btn.disabled = false; btn.textContent = 'Try again';
+    const msgs = {
+      1: 'Location is blocked. Turn it on for your browser in Settings, then try again.',
+      2: "Couldn't get a location fix. Step near a window and try again.",
+      3: 'That took too long. Try again.'
+    };
+    status(msgs[err.code] || 'Could not get your location.', true);
+  }, { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 });
+};
+
+start();
+</script>
+</body>
+</html>
