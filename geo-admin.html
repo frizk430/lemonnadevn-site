@@ -1,0 +1,567 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Geo Admin — Lemonnade</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<style>
+  :root{
+    --bg:#f6f6f4; --panel:#fff; --ink:#151515; --muted:#6b6b6b; --line:#e3e3df;
+    --accent:#f5c400; --accent-ink:#151515; --danger:#d93636; --ok:#1f8f4e;
+    --radius:10px;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.45 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+  header{display:flex;align-items:center;gap:12px;padding:12px 16px;background:#151515;color:#fff}
+  header h1{font-size:16px;margin:0;letter-spacing:.02em}
+  header h1 span{color:var(--accent)}
+  header .sp{flex:1}
+  header button{background:transparent;color:#fff;border:1px solid #444}
+  nav{display:flex;gap:4px;padding:8px 16px;background:#fff;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:1000}
+  nav button{background:none;border:none;padding:8px 12px;border-radius:8px;font-weight:600;color:var(--muted)}
+  nav button.on{background:var(--ink);color:#fff}
+  main{padding:16px;max-width:1280px;margin:0 auto}
+  .hidden{display:none!important}
+  button{font:inherit;cursor:pointer;border-radius:8px;border:1px solid var(--line);background:#fff;padding:7px 12px}
+  button.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:700}
+  button.danger{color:var(--danger);border-color:#f0c4c4}
+  button.small{padding:4px 8px;font-size:12px}
+  input,select,textarea{font:inherit;width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--ink)}
+  textarea{min-height:60px;resize:vertical}
+  label{display:block;font-size:12px;font-weight:600;color:var(--muted);margin:10px 0 4px}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:14px}
+  .panel h2{font-size:15px;margin:0 0 8px}
+  .hint{color:var(--muted);font-size:12px;margin:4px 0}
+  .grid-map{display:grid;grid-template-columns:1fr 340px;gap:16px}
+  #map{height:620px;border-radius:var(--radius);border:1px solid var(--line)}
+  .list{display:flex;flex-direction:column;gap:6px;max-height:260px;overflow:auto;margin-bottom:10px}
+  .item{display:flex;align-items:center;gap:8px;padding:8px;border:1px solid var(--line);border-radius:8px;cursor:pointer;background:#fff}
+  .item:hover,.item.sel{border-color:var(--ink)}
+  .dot{width:10px;height:10px;border-radius:50%;flex:none}
+  .item .meta{color:var(--muted);font-size:12px}
+  .item .grow{flex:1;min-width:0}
+  .item .grow b{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .actions{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+  .search{display:flex;gap:6px;margin-bottom:10px}
+  .search input{flex:1}
+  .badge{display:inline-block;font-size:11px;font-weight:700;padding:2px 7px;border-radius:99px;background:#eee;text-transform:uppercase;letter-spacing:.03em}
+  .badge.ad{background:#e6edff;color:#2846b8}
+  .badge.checkin{background:#fff4c2;color:#7a5d00}
+  .badge.nearby{background:#dff5e7;color:#16683a}
+  .badge.off{background:#f1f1f1;color:#888}
+  .grid-camp{display:grid;grid-template-columns:1fr 420px;gap:16px;align-items:start}
+  .camp{padding:12px;border:1px solid var(--line);border-radius:var(--radius);background:#fff;margin-bottom:10px}
+  .camp .top{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .camp .top b{font-size:15px}
+  .camp .link{display:flex;gap:6px;margin-top:8px}
+  .camp .link input{font-size:12px;background:#fafafa}
+  table{width:100%;border-collapse:collapse;background:#fff;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+  th,td{padding:9px 10px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
+  th:first-child,td:first-child{text-align:left}
+  th{font-size:12px;color:var(--muted);background:#fafafa}
+  td input{width:96px;text-align:right;padding:5px 7px}
+  .table-wrap{overflow:auto}
+  #toast{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 16px;border-radius:8px;z-index:3000;opacity:0;transition:opacity .2s;pointer-events:none}
+  #toast.show{opacity:1}
+  #toast.err{background:var(--danger)}
+  dialog{border:none;border-radius:var(--radius);padding:20px;max-width:340px}
+  dialog::backdrop{background:rgba(0,0,0,.5)}
+  #qrBox{display:flex;justify-content:center;margin:12px 0}
+  .login{max-width:360px;margin:60px auto}
+  @media (max-width:900px){
+    .grid-map,.grid-camp{grid-template-columns:1fr}
+    #map{height:420px}
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1>LEMONNADE <span>GEO</span></h1>
+  <div class="sp"></div>
+  <span id="who" class="hint" style="color:#bbb"></span>
+  <button id="signOut" class="small hidden">Sign out</button>
+</header>
+
+<!-- Login -->
+<section id="loginView" class="login panel hidden">
+  <h2>Staff sign in</h2>
+  <p class="hint">Same login as the site admin.</p>
+  <form id="loginForm">
+    <label>Email</label><input id="loginEmail" type="email" required autocomplete="username">
+    <label>Password</label><input id="loginPass" type="password" required autocomplete="current-password">
+    <div class="actions"><button class="primary" type="submit">Sign in</button></div>
+  </form>
+</section>
+
+<div id="appView" class="hidden">
+  <nav>
+    <button data-tab="fences" class="on">Map &amp; Fences</button>
+    <button data-tab="campaigns">Campaigns</button>
+    <button data-tab="results">Results</button>
+  </nav>
+  <main>
+    <!-- FENCES -->
+    <section id="tab-fences">
+      <div class="grid-map">
+        <div id="map"></div>
+        <div class="panel">
+          <div class="search">
+            <input id="addrSearch" placeholder="Find an address or business…">
+            <button id="addrGo">Go</button>
+          </div>
+          <h2>Fences</h2>
+          <div id="fenceList" class="list"></div>
+          <button id="newFence" class="small">+ New fence</button>
+          <p class="hint">Click the map to place a fence. Drag the pin to move it.</p>
+
+          <form id="fenceForm" class="hidden">
+            <label>Name</label><input id="fName" required placeholder="e.g. Competitor — Sherman Way">
+            <div class="row">
+              <div><label>Type</label>
+                <select id="fKind">
+                  <option value="store">Our store</option>
+                  <option value="competitor">Competitor</option>
+                  <option value="event">Event / venue</option>
+                  <option value="area">Area</option>
+                </select></div>
+              <div><label>Radius (feet)</label><input id="fRadius" type="number" min="33" max="160000" step="10" required></div>
+            </div>
+            <p class="hint" id="fCoords"></p>
+            <label>Notes</label><textarea id="fNotes"></textarea>
+            <label style="display:flex;gap:8px;align-items:center"><input id="fActive" type="checkbox" style="width:auto"> Active</label>
+            <div class="actions">
+              <button class="primary" type="submit">Save fence</button>
+              <button type="button" id="fCancel">Cancel</button>
+              <button type="button" id="fDelete" class="danger">Delete</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <!-- CAMPAIGNS -->
+    <section id="tab-campaigns" class="hidden">
+      <div class="grid-camp">
+        <div>
+          <div class="actions" style="margin:0 0 12px"><button id="newCamp" class="primary">+ New campaign</button></div>
+          <div id="campList"></div>
+        </div>
+        <form id="campForm" class="panel hidden">
+          <h2 id="campFormTitle">New campaign</h2>
+          <label>Name</label><input id="cName" required placeholder="e.g. October competitor conquest">
+          <div class="row">
+            <div><label>Link name (slug)</label><input id="cSlug" required pattern="[a-z0-9-]{2,60}" placeholder="oct-conquest"></div>
+            <div><label>Type</label>
+              <select id="cType">
+                <option value="ad">Ad landing page</option>
+                <option value="checkin">In-store check-in</option>
+                <option value="nearby">Deals near me</option>
+              </select></div>
+          </div>
+          <p class="hint" id="cTypeHint"></p>
+          <div class="row">
+            <div><label>Fence</label><select id="cFence"></select></div>
+            <div><label>Ad vendor</label><input id="cVendor" placeholder="e.g. MediaJel"></div>
+          </div>
+          <label>Headline</label><input id="cHeadline" required placeholder="20% off your first visit">
+          <label>Offer details</label><textarea id="cOffer"></textarea>
+          <div class="row">
+            <div><label>Promo code (must match Meadow)</label><input id="cCode" placeholder="FENCE20"></div>
+            <div><label>Budget ($)</label><input id="cBudget" type="number" min="0" step="0.01"></div>
+          </div>
+          <label>Fine print</label><input id="cFine" placeholder="21+ with valid ID. One per customer.">
+          <div class="row">
+            <div><label>Starts</label><input id="cStart" type="date"></div>
+            <div><label>Ends</label><input id="cEnd" type="date"></div>
+          </div>
+          <label style="display:flex;gap:8px;align-items:center"><input id="cActive" type="checkbox" style="width:auto"> Active</label>
+          <div class="actions">
+            <button class="primary" type="submit">Save campaign</button>
+            <button type="button" id="cCancel">Cancel</button>
+            <button type="button" id="cDelete" class="danger">Delete</button>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <!-- RESULTS -->
+    <section id="tab-results" class="hidden">
+      <p class="hint">Visits, code views and check-ins count automatically. Enter redemptions and revenue from Meadow's discount report — they save when you leave the box.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr>
+            <th>Campaign</th><th>Visits</th><th>Code views</th><th>Check-ins</th><th>Turned away</th><th>Nearby shown</th>
+            <th>Redemptions</th><th>Revenue ($)</th><th>Budget</th><th>Cost / redemption</th><th>Return</th>
+          </tr></thead>
+          <tbody id="resultsBody"></tbody>
+        </table>
+      </div>
+      <div class="actions"><button id="refreshStats" class="small">Refresh</button></div>
+    </section>
+  </main>
+</div>
+
+<dialog id="qrDialog">
+  <b id="qrTitle"></b>
+  <div id="qrBox"></div>
+  <p class="hint" id="qrUrl" style="word-break:break-all"></p>
+  <div class="actions"><button id="qrDownload" class="primary">Download PNG</button><button id="qrClose">Close</button></div>
+</dialog>
+
+<div id="toast"></div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+// ---------- Config ----------
+const SUPABASE_URL = 'https://ccczquselvfnomyatdat.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_uMlPLAmhfGmVFiHniYqdPQ_vtAwKoVI';
+const STORE_CENTER = [34.1985, -118.4905]; // 7040 Hayvenhurst Ave (approx.)
+const KIND_COLORS = { store:'#e0b000', competitor:'#d93636', event:'#3e63dd', area:'#1f8f4e' };
+const TYPE_HINTS = {
+  ad: 'Send your ad vendor the tracking link. Code shows right away on the landing page.',
+  checkin: 'Print the QR at the counter or museum. Code unlocks only when the phone is inside the fence.',
+  nearby: 'Shows on the "Deals near me" banner when a shopper taps it inside the fence.'
+};
+const FT_PER_M = 3.28084;
+
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+let fences = [], campaigns = [], stats = {};
+let map, fenceLayer, draft = null, editingFenceId = null, editingCampId = null;
+
+// ---------- Utils ----------
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const money = n => n == null || isNaN(n) ? '—' : '$' + Number(n).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
+const slugify = s => s.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,60);
+const ftLabel = m => { const ft = Math.round(m * FT_PER_M); return ft >= 2640 ? (ft/5280).toFixed(2)+' mi' : ft.toLocaleString()+' ft'; };
+function toast(msg, err=false){
+  const t = $('toast'); t.textContent = msg; t.className = 'show' + (err?' err':'');
+  clearTimeout(toast._t); toast._t = setTimeout(()=> t.className = '', 2600);
+}
+function todayPT(){ return new Date().toLocaleDateString('en-CA',{timeZone:'America/Los_Angeles'}); }
+function isLive(c){
+  const d = todayPT();
+  return c.active && (!c.starts_on || c.starts_on <= d) && (!c.ends_on || c.ends_on >= d);
+}
+function campaignUrl(c){
+  const u = new URL('go.html', location.href);
+  u.searchParams.set('c', c.slug);
+  if (c.type === 'ad'){
+    u.searchParams.set('utm_source', slugify(c.vendor || 'ad') || 'ad');
+    u.searchParams.set('utm_medium', 'geofence');
+  }
+  return u.toString();
+}
+
+// ---------- Auth ----------
+async function boot(){
+  const { data:{ session } } = await sb.auth.getSession();
+  session ? showApp(session) : showLogin();
+}
+function showLogin(){
+  $('loginView').classList.remove('hidden');
+  $('appView').classList.add('hidden');
+  $('signOut').classList.add('hidden'); $('who').textContent = '';
+}
+async function showApp(session){
+  $('loginView').classList.add('hidden');
+  $('appView').classList.remove('hidden');
+  $('signOut').classList.remove('hidden');
+  $('who').textContent = session.user.email;
+  if (!map) initMap();
+  await loadAll();
+}
+$('loginForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const { data, error } = await sb.auth.signInWithPassword({ email:$('loginEmail').value.trim(), password:$('loginPass').value });
+  if (error) return toast(error.message, true);
+  showApp(data.session);
+});
+$('signOut').onclick = async () => { await sb.auth.signOut(); showLogin(); };
+
+// ---------- Tabs ----------
+document.querySelectorAll('nav button').forEach(b => b.onclick = () => {
+  document.querySelectorAll('nav button').forEach(x => x.classList.toggle('on', x === b));
+  ['fences','campaigns','results'].forEach(t => $('tab-'+t).classList.toggle('hidden', t !== b.dataset.tab));
+  if (b.dataset.tab === 'fences') setTimeout(()=> map.invalidateSize(), 50);
+  if (b.dataset.tab === 'results') loadStats().then(renderResults);
+});
+
+// ---------- Data ----------
+async function loadAll(){
+  const [f, c] = await Promise.all([
+    sb.from('geo_fences').select('*').order('created_at'),
+    sb.from('geo_campaigns').select('*').order('created_at', { ascending:false })
+  ]);
+  if (f.error || c.error) return toast((f.error||c.error).message + ' — did you run geofence-setup.sql?', true);
+  fences = f.data; campaigns = c.data;
+  await loadStats();
+  renderFences(); renderCampaigns(); renderResults();
+}
+async function loadStats(){
+  const { data, error } = await sb.from('geo_campaign_stats').select('*');
+  if (error) { toast(error.message, true); return; }
+  stats = Object.fromEntries(data.map(s => [s.id, s]));
+}
+
+// ---------- Map ----------
+function initMap(){
+  map = L.map('map').setView(STORE_CENTER, 14);
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+    maxZoom: 20, subdomains: 'abcd',
+    attribution: '&copy; OpenStreetMap contributors &copy; CARTO'
+  }).addTo(map);
+  fenceLayer = L.layerGroup().addTo(map);
+  map.on('click', e => {
+    if (!draft) startFence({ lat:e.latlng.lat, lng:e.latlng.lng });
+    else moveDraft(e.latlng);
+  });
+}
+function renderFences(){
+  fenceLayer.clearLayers();
+  const list = $('fenceList');
+  if (!fences.length) list.innerHTML = '<p class="hint">No fences yet.</p>';
+  else list.innerHTML = fences.map(f => `
+    <div class="item ${f.id===editingFenceId?'sel':''}" data-id="${f.id}">
+      <span class="dot" style="background:${KIND_COLORS[f.kind]}"></span>
+      <div class="grow"><b>${esc(f.name)}</b><span class="meta">${f.kind} · ${ftLabel(f.radius_m)}${f.active?'':' · off'}</span></div>
+    </div>`).join('');
+  list.querySelectorAll('.item').forEach(el => el.onclick = () => editFence(el.dataset.id));
+
+  fences.forEach(f => {
+    if (f.id === editingFenceId) return; // draft draws this one
+    L.circle([f.lat, f.lng], {
+      radius: f.radius_m, color: KIND_COLORS[f.kind], weight: 2,
+      fillOpacity: f.active ? .15 : .04, dashArray: f.active ? null : '4 4'
+    }).bindTooltip(esc(f.name)).on('click', ev => { L.DomEvent.stopPropagation(ev); editFence(f.id); })
+      .addTo(fenceLayer);
+  });
+}
+function startFence(at, existing=null){
+  clearDraft();
+  editingFenceId = existing ? existing.id : null;
+  const f = existing || { name:'', kind:'competitor', radius_m:150, notes:'', active:true, lat:at.lat, lng:at.lng };
+  $('fName').value = f.name; $('fKind').value = f.kind;
+  $('fRadius').value = Math.round(f.radius_m * FT_PER_M);
+  $('fNotes').value = f.notes || ''; $('fActive').checked = f.active;
+  $('fDelete').classList.toggle('hidden', !existing);
+  $('fenceForm').classList.remove('hidden');
+
+  const color = KIND_COLORS[f.kind];
+  draft = {
+    circle: L.circle([f.lat, f.lng], { radius:f.radius_m, color, weight:3, fillOpacity:.2 }).addTo(map),
+    marker: L.marker([f.lat, f.lng], { draggable:true }).addTo(map)
+  };
+  draft.marker.on('drag', e => moveDraft(e.target.getLatLng()));
+  updateCoords();
+  renderFences();
+  $('fName').focus();
+}
+function moveDraft(ll){
+  draft.circle.setLatLng(ll); draft.marker.setLatLng(ll); updateCoords();
+}
+function updateCoords(){
+  const ll = draft.marker.getLatLng();
+  $('fCoords').textContent = `Center: ${ll.lat.toFixed(5)}, ${ll.lng.toFixed(5)}`;
+}
+function clearDraft(){
+  if (draft){ map.removeLayer(draft.circle); map.removeLayer(draft.marker); draft = null; }
+}
+function closeFenceForm(){
+  clearDraft(); editingFenceId = null;
+  $('fenceForm').classList.add('hidden'); renderFences();
+}
+function editFence(id){
+  const f = fences.find(x => x.id === id); if (!f) return;
+  startFence(null, f);
+  map.fitBounds(draft.circle.getBounds(), { maxZoom:18, padding:[40,40] });
+}
+$('fRadius').addEventListener('input', () => {
+  const m = Number($('fRadius').value) / FT_PER_M;
+  if (draft && m > 0) draft.circle.setRadius(m);
+});
+$('fKind').addEventListener('change', () => {
+  if (draft) draft.circle.setStyle({ color: KIND_COLORS[$('fKind').value] });
+});
+$('newFence').onclick = () => startFence(map.getCenter());
+$('fCancel').onclick = closeFenceForm;
+$('fenceForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const ll = draft.marker.getLatLng();
+  const row = {
+    name: $('fName').value.trim(), kind: $('fKind').value,
+    radius_m: Math.max(10, Math.round(Number($('fRadius').value) / FT_PER_M)),
+    lat: +ll.lat.toFixed(6), lng: +ll.lng.toFixed(6),
+    notes: $('fNotes').value.trim() || null, active: $('fActive').checked
+  };
+  const q = editingFenceId
+    ? sb.from('geo_fences').update(row).eq('id', editingFenceId)
+    : sb.from('geo_fences').insert(row);
+  const { error } = await q;
+  if (error) return toast(error.message, true);
+  toast('Fence saved'); closeFenceForm(); loadAll();
+});
+$('fDelete').onclick = async () => {
+  const used = campaigns.filter(c => c.fence_id === editingFenceId).length;
+  if (!confirm(used ? `${used} campaign(s) use this fence and will lose it. Delete anyway?` : 'Delete this fence?')) return;
+  const { error } = await sb.from('geo_fences').delete().eq('id', editingFenceId);
+  if (error) return toast(error.message, true);
+  toast('Fence deleted'); closeFenceForm(); loadAll();
+};
+
+// Address search (OpenStreetMap Nominatim)
+async function findAddress(){
+  const q = $('addrSearch').value.trim(); if (!q) return;
+  try{
+    const url = 'https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=us&q=' + encodeURIComponent(q);
+    const res = await fetch(url, { headers:{ 'Accept':'application/json' } });
+    const [hit] = await res.json();
+    if (!hit) return toast('No match — try adding the city', true);
+    const ll = { lat:+hit.lat, lng:+hit.lon };
+    map.setView(ll, 17);
+    if (draft) moveDraft(ll); else startFence(ll);
+    if (!$('fName').value) $('fName').value = hit.display_name.split(',')[0];
+  } catch { toast('Search failed', true); }
+}
+$('addrGo').onclick = findAddress;
+$('addrSearch').addEventListener('keydown', e => { if (e.key === 'Enter') findAddress(); });
+
+// ---------- Campaigns ----------
+function renderCampaigns(){
+  const el = $('campList');
+  if (!campaigns.length){ el.innerHTML = '<div class="panel"><p class="hint">No campaigns yet. Make a fence first, then add a campaign.</p></div>'; return; }
+  el.innerHTML = campaigns.map(c => {
+    const f = fences.find(x => x.id === c.fence_id);
+    const live = isLive(c);
+    const needsFence = c.type !== 'ad' && !f;
+    return `<div class="camp">
+      <div class="top">
+        <b>${esc(c.name)}</b>
+        <span class="badge ${c.type}">${c.type === 'ad' ? 'Ad' : c.type === 'checkin' ? 'Check-in' : 'Nearby'}</span>
+        <span class="badge ${live?'':'off'}">${live ? 'Live' : 'Off'}</span>
+        ${needsFence ? '<span class="badge" style="background:#fde2e2;color:#a01d1d">Needs a fence</span>' : ''}
+      </div>
+      <div class="hint">${esc(c.headline)}${c.promo_code ? ' · code <b>'+esc(c.promo_code)+'</b>' : ''}${f ? ' · '+esc(f.name) : ''}${c.vendor ? ' · '+esc(c.vendor) : ''}</div>
+      ${c.type === 'nearby' ? '' : `<div class="link">
+        <input readonly value="${esc(campaignUrl(c))}">
+        <button class="small" data-copy="${c.id}">Copy</button>
+        <button class="small" data-qr="${c.id}">QR</button>
+      </div>`}
+      <div class="actions" style="margin-top:8px"><button class="small" data-edit="${c.id}">Edit</button></div>
+    </div>`;
+  }).join('');
+  el.querySelectorAll('[data-edit]').forEach(b => b.onclick = () => openCamp(b.dataset.edit));
+  el.querySelectorAll('[data-copy]').forEach(b => b.onclick = async () => {
+    const c = campaigns.find(x => x.id === b.dataset.copy);
+    try { await navigator.clipboard.writeText(campaignUrl(c)); toast('Link copied'); } catch { toast('Copy failed', true); }
+  });
+  el.querySelectorAll('[data-qr]').forEach(b => b.onclick = () => showQR(campaigns.find(x => x.id === b.dataset.qr)));
+}
+function fillFenceSelect(selected){
+  $('cFence').innerHTML = '<option value="">— none —</option>' +
+    fences.map(f => `<option value="${f.id}" ${f.id===selected?'selected':''}>${esc(f.name)}</option>`).join('');
+}
+function openCamp(id){
+  editingCampId = id || null;
+  const c = campaigns.find(x => x.id === id) || {
+    name:'', slug:'', type:'ad', fence_id: (fences.find(f=>f.kind==='store')||{}).id || '',
+    vendor:'', headline:'', offer:'', promo_code:'', fine_print:'21+ with valid ID. One per customer. While supplies last.',
+    starts_on:'', ends_on:'', budget:'', active:true
+  };
+  $('campFormTitle').textContent = id ? 'Edit campaign' : 'New campaign';
+  $('cName').value = c.name; $('cSlug').value = c.slug; $('cType').value = c.type;
+  fillFenceSelect(c.fence_id);
+  $('cVendor').value = c.vendor || ''; $('cHeadline').value = c.headline; $('cOffer').value = c.offer || '';
+  $('cCode').value = c.promo_code || ''; $('cFine').value = c.fine_print || '';
+  $('cStart').value = c.starts_on || ''; $('cEnd').value = c.ends_on || '';
+  $('cBudget').value = c.budget ?? ''; $('cActive').checked = c.active;
+  $('cSlug').dataset.touched = id ? '1' : '';
+  $('cDelete').classList.toggle('hidden', !id);
+  updateTypeHint();
+  $('campForm').classList.remove('hidden');
+  $('cName').focus();
+}
+function updateTypeHint(){ $('cTypeHint').textContent = TYPE_HINTS[$('cType').value]; }
+$('cType').addEventListener('change', updateTypeHint);
+$('cName').addEventListener('input', () => { if (!$('cSlug').dataset.touched) $('cSlug').value = slugify($('cName').value); });
+$('cSlug').addEventListener('input', () => { $('cSlug').dataset.touched = '1'; });
+$('newCamp').onclick = () => openCamp(null);
+$('cCancel').onclick = () => { $('campForm').classList.add('hidden'); editingCampId = null; };
+$('campForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const type = $('cType').value;
+  if (type !== 'ad' && !$('cFence').value) return toast('Check-in and Nearby campaigns need a fence', true);
+  if (type === 'checkin' && !$('cCode').value.trim()) return toast('Check-in campaigns need a promo code to unlock', true);
+  const row = {
+    name: $('cName').value.trim(), slug: slugify($('cSlug').value), type,
+    fence_id: $('cFence').value || null, vendor: $('cVendor').value.trim() || null,
+    headline: $('cHeadline').value.trim(), offer: $('cOffer').value.trim(),
+    promo_code: $('cCode').value.trim().toUpperCase() || null, fine_print: $('cFine').value.trim() || null,
+    starts_on: $('cStart').value || null, ends_on: $('cEnd').value || null,
+    budget: $('cBudget').value === '' ? 0 : Number($('cBudget').value), active: $('cActive').checked
+  };
+  const q = editingCampId
+    ? sb.from('geo_campaigns').update(row).eq('id', editingCampId)
+    : sb.from('geo_campaigns').insert(row);
+  const { error } = await q;
+  if (error) return toast(error.code === '23505' ? 'That link name is taken' : error.message, true);
+  toast('Campaign saved'); $('campForm').classList.add('hidden'); editingCampId = null; loadAll();
+});
+$('cDelete').onclick = async () => {
+  if (!confirm('Delete this campaign and its tracking history?')) return;
+  const { error } = await sb.from('geo_campaigns').delete().eq('id', editingCampId);
+  if (error) return toast(error.message, true);
+  toast('Campaign deleted'); $('campForm').classList.add('hidden'); editingCampId = null; loadAll();
+};
+
+// ---------- QR ----------
+function showQR(c){
+  const url = campaignUrl(c);
+  $('qrTitle').textContent = c.name; $('qrUrl').textContent = url;
+  $('qrBox').innerHTML = '';
+  new QRCode($('qrBox'), { text:url, width:240, height:240, correctLevel: QRCode.CorrectLevel.M });
+  $('qrDownload').onclick = () => {
+    const canvas = $('qrBox').querySelector('canvas');
+    const a = document.createElement('a');
+    a.href = canvas.toDataURL('image/png'); a.download = `qr-${c.slug}.png`; a.click();
+  };
+  $('qrDialog').showModal();
+}
+$('qrClose').onclick = () => $('qrDialog').close();
+
+// ---------- Results ----------
+function renderResults(){
+  const body = $('resultsBody');
+  if (!campaigns.length){ body.innerHTML = '<tr><td colspan="11" class="hint" style="text-align:left">No campaigns yet.</td></tr>'; return; }
+  body.innerHTML = campaigns.map(c => {
+    const s = stats[c.id] || {};
+    const cpr = c.redemptions > 0 && c.budget > 0 ? money(c.budget / c.redemptions) : '—';
+    const ret = c.budget > 0 && c.revenue > 0 ? (c.revenue / c.budget).toFixed(1) + '×' : '—';
+    return `<tr>
+      <td><b>${esc(c.name)}</b> <span class="badge ${c.type}">${c.type}</span></td>
+      <td>${s.visits ?? 0}</td><td>${s.code_views ?? 0}</td>
+      <td>${s.checkins ?? 0}</td><td>${s.checkins_denied ?? 0}</td><td>${s.nearby_shown ?? 0}</td>
+      <td><input type="number" min="0" step="1" value="${c.redemptions}" data-id="${c.id}" data-field="redemptions"></td>
+      <td><input type="number" min="0" step="0.01" value="${c.revenue}" data-id="${c.id}" data-field="revenue"></td>
+      <td>${money(c.budget)}</td><td>${cpr}</td><td>${ret}</td>
+    </tr>`;
+  }).join('');
+  body.querySelectorAll('input').forEach(inp => inp.addEventListener('change', async () => {
+    const val = inp.value === '' ? 0 : Number(inp.value);
+    const { error } = await sb.from('geo_campaigns').update({ [inp.dataset.field]: val }).eq('id', inp.dataset.id);
+    if (error) return toast(error.message, true);
+    const c = campaigns.find(x => x.id === inp.dataset.id); c[inp.dataset.field] = val;
+    toast('Saved'); renderResults();
+  }));
+}
+$('refreshStats').onclick = async () => { await loadStats(); renderResults(); toast('Updated'); };
+
+boot();
+</script>
+</body>
+</html>
